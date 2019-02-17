@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8"/>
+		<title>EtherPrime</title>
+		<link rel="stylesheet" type="text/css" href="style.css"/>
+		<script>
+			// Import JQuery
+			function $(el) { return document.getElementById(el); }
+		</script>
+	</head>
+	<body>
+		<div id="titleBar">
+			<div id="title">EtherPrime</div>
+			<div id="subtitle">Loading...</div>
+
+			<div id="accountBox">Loading...</div>
+			
+			<div id="definitePrimeCounterBox">Definite primes<div id="definitePrimeCounter">...</div></div>
+			<div id="largestPrimeBox">Largest definite prime<div id="largestPrimeCounter">...</div></div>
+			<div id="probablePrimeCounterBox">Probable primes<div id="probablePrimeCounter">...</div></div>
+		</div>
+		<div id="menuBar">
+			<a href="#allPrimes"    id="menuButton_pageAllPrimes"    class="nobtn">All primes</a>
+			<a href="#yourPrimes"   id="menuButton_pageYourPrimes"   class="nobtn">Your primes</a>
+			<a href="#search"       id="menuButton_pageSearch"       class="nobtn">Search</a>
+			<a href="#compute"      id="menuButton_pageCompute"      class="nobtn">Compute</a>
+			<a href="#ranking"      id="menuButton_pageRanking"      class="nobtn">Ranking</a>
+			<a href="#transactions" id="menuButton_pageTransactions" class="nobtn">Transactions</a>
+			<a href="#chat"         id="menuButton_pageChat"         class="nobtn">Chat</a>
+			<!-- <a href="#market" id="menuButton_pageMarket" class="nobtn">Market</a> -->
+		</div>
+		<div id="pageBox">
+			<div id="loadingPage">
+				<div id="initLog" style="visibility: hidden;">
+				</div>
+			</div>
+			<div id="pageAllPrimes" style="display: none;">
+				<h2>All primes</h2>
+				<div class="primesList" id="allPrimesList" sourceType="allDefinitePrimes"></div>
+			</div>
+			<div id="pageYourPrimes" style="display: none;">
+				<h2>Your primes</h2>
+				<div class="primesList" id="yourPrimesList" sourceType="primesOfOwner" owner="user"></div>
+			</div>
+			<div id="pageSearch" style="display: none;">
+				<h2>Search</h2>
+				<input type="text" id="searchBox" placeholder="Search for a number, address or username"/>
+				<div id="searchResults"></div>
+			</div>
+			<div id="pageCompute" style="display: none;">
+				<h2>Compute</h2>
+				<table id="pageComputeTable1">
+					<tbody>
+						<tr><td>Amount of definite primes found:</td><td id="computePage_amountOfDefinitePrimesFound">Loading...</td></tr>
+						<tr><td>Number currently being checked for primality:</td><td id="numberCurrentlyBeingCheckedForPrimality">Loading...</td></tr>
+						<tr><td>Divisor currently being tried:</td><td id="divisorCurrentlyBeingUsedToCheckForPrimality">Loading...</td></tr>
+					</tbody>
+				</table>
+				<table id="pageComputeTable2">
+					<tbody>
+						<tr><td>Gas to burn:</td><td><input type="range" min="500000" max="5000000" step="100000" value="2500000" id="computeGasLimit"/></td><td><span id="computeGasLimitDisplay"></span> gas</td></tr>
+						<tr><td>Gas price:</td><td><input type="range" min="0.1" max="30.0" step="0.1" value="2.0" id="computeGasPrice"/></td><td><span id="computeGasPriceDisplay"></span> Gwei/gas</td></tr>
+						<tr><td>Maximum ether cost:</td><td></td><td><span id="computeEtherCost"></span> ETH</td></tr>
+						<tr><td>Primes to MSTORE(SLOAD):</td><td><input type="range" min="0" max="1" step="1" value="0" id="computePrimesToMemorize"/></td><td><span id="computePrimesToMemorizeDisplay">0</span> primes</td></tr>
+						<tr><td></td></tr>
+						<tr><td colspan="3"><a href="#" id="btnCompute">Compute</a></td></tr>
+					</tbody>
+				</table>
+				<br clear="both"/>
+				<h2>Recently computed primes</h2>
+				<div class="primesList" id="recentDefinitePrimesList" sourceType="recentDefinitePrimes"></div>
+			</div>
+			<div id="pageRanking" style="display: none;">
+				<h2>Ranking</h2>
+				<table cellspacing="10">
+					<thead>
+						<tr>
+							<th></th>
+							<th></th>
+							<th></th>
+							<th></th>
+							<th colspan="3">Probable primes</th>
+						</tr>
+						<tr id="rankingTableHeadersRow">
+							<th>User</th>
+							<th onclick="sortRankingPage(0);return false;">Primes owned</th>
+							<th onclick="sortRankingPage(1);return false;">Gas spent</th>
+							<th onclick="sortRankingPage(2);return false;">Ether spent</th>
+							<th onclick="sortRankingPage(3);return false;">Claimed</th>
+							<th onclick="sortRankingPage(4);return false;">Disproven by</th>
+							<th onclick="sortRankingPage(5);return false;">Disproven from</th>
+						</tr>
+					</thead>
+					<tbody id="rankingTable">
+
+					</tbody>
+				</table>
+			</div>
+			<div id="pageTransactions" style="display: none;">
+				<h2>Your transactions</h2>
+				<table>
+					<thead>
+						<tr><th>TX hash</th><th>Action</th><th>Confirmed</th><th>Result</th></tr>
+					</thead>
+					<tbody id="transactionsTable">
+					</tbody>
+				</table>
+			</div>
+			<div id="pageChat" style="display: none;">
+				<h2>Chat</h2>
+				<input type="text" id="chatMessageTextBox" disabled="true" enabled="false"/>
+				<div id="chatMessagesDiv"></div>
+			</div>
+			<div id="pageMarket" style="display: none;">
+				<h2>Market</h2>
+				<div id="marketError" style="display: none;">
+					Please unlock or connect your MetaMask to view your market data.
+				</div>
+				<h3>Buy orders on your primes</h3>
+				<div id="buyOrdersOnYourPrimes"></div>
+
+				<h3>Your sell orders</h3>
+				<div id="yourSellOrders"></div>
+			</div>
+<script src="blockies.js"></script>
+<script src="bignumber.js"></script>
+<script src="web3.js"></script>
+<script src="call_contract.js"></script>
+<script src="constants.js"></script>
+<script src="prime_list.js"></script>
+<script src="events.js"></script>
+<script src="util.js"></script>
+
+<script src="page_search.js"></script>
+<script src="page_ranking.js"></script>
+<script src="page_compute.js"></script>
+<script src="page_transactions.js"></script>
+<script src="page_chat.js"></script>
+<!-- <script src="page_market.js"></script> -->
+
+<script src="init.js"></script>
+<script src="paging.js"></script>
+<script src="account_box.js"></script>
+<script src="user_box.js"></script>
+<script>
+"use strict";
+
+
+
+var etherPrime = null;
+var etherPrimeChat = null;
+
+
+const allPrimesList = $("allPrimesList");
+
+
+
+async function getDefinitePrimesRange(firstIndex, amount)
+{
+	//console.log("getDefinitePrimesRange("+firstIndex+", "+amount+")");
+	
+	const primes = [];
+	for (let i=firstIndex; i<firstIndex+amount; i++)
+	{
+		primes.push(callContract("definitePrimes", i));
+	}
+	return await Promise.all(primes);
+}
+
+
+// Cached user state
+
+let userAccount = undefined;
+
+async function btnConnectClicked()
+{
+	if (window.ethereum)
+	{
+		await window.ethereum.enable();
+
+		updateAccountData();
+	}
+	else
+	{
+		alert("Please unlock your Ethereum wallet to use this feature.");
+	}
+}
+
+
+
+let allowPageChange = true;
+
+window.BN = null;
+
+
+
+
+
+
+window.addEventListener("load", init);
+
+window.addEventListener("hashchange", gotoCurrentLocationHash);
+
+function gotoCurrentLocationHash()
+{
+	if (window.location.hash.includes("search:"))
+	{
+		const searchValue = decodeURIComponent(window.location.hash.split("search:", 2)[1]);
+		searchFor(searchValue);
+	}
+	else
+	{
+		let pageHash = window.location.hash.trim();
+		if (pageHash.startsWith("#")) pageHash = pageHash.substring(1);
+		const pageIndex = PAGE_HASHES.indexOf(pageHash);
+		if (pageIndex !== -1)
+		{
+			showPage(pages[pageIndex]);
+		}
+	}
+}
+</script>
+</body>
+</html>
