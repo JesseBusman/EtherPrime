@@ -2,6 +2,8 @@
 
 const nonPersistingCache = {};
 
+const owner_to_prime_to_ownerArrayIndex_cache = {};
+
 function equals(val1, val2)
 {
 	// Convert BN library arguments to BigNumber arguments
@@ -491,44 +493,54 @@ function callContract(funcName)
 
 			const returnNamesAndTypes = functionName_to_returnNamesAndTypes(theFuncName, theIsCallToChatContract);
 
-			// If the result should be a uint or int, but we received a string from web3, convert it.
-			if (typeof result === "string" && returnNamesAndTypes.length === 1 && (returnNamesAndTypes[0].type.startsWith("uint") || returnNamesAndTypes[0].type.startsWith("int")))
+			if (theIsViewOrPure)
 			{
-				if (/^([0-9]+)$/.test(result)) result = new BN(result, 10);
-				else throw "Web3 gave us a string '"+result+"' as return value of function "+theFuncName+", but it should have been a "+returnNamesAndTypes[0].type;
-			}
-			else if (result.constructor === Array && returnNamesAndTypes.length >= 2)
-			{
-				for (let i=0; i<returnNamesAndTypes.length; i++)
+				// If the result should be a uint or int, but we received a string from web3, convert it.
+				if (typeof result === "string" && returnNamesAndTypes.length === 1 && (returnNamesAndTypes[0].type.startsWith("uint") || returnNamesAndTypes[0].type.startsWith("int")))
 				{
-					if (typeof result[i] === "string" && (returnNamesAndTypes[i].type.startsWith("uint") || returnNamesAndTypes[i].type.startsWith("int"))) result[i] = new BN(result[i], 10);
-					else throw "Web3 gave us '"+result[i]+"' as return value #"+i+" ("+returnNamesAndTypes[i].name+") of function "+theFuncName+", but it should have been a "+returnNamesAndTypes[i].type;
+					if (/^([0-9]+)$/.test(result)) result = new BN(result, 10);
+					else throw "Web3 gave us a string '"+result+"' as return value of function "+theFuncName+", but it should have been a "+returnNamesAndTypes[0].type;
+				}
+				else if (result.constructor === Array && returnNamesAndTypes.length >= 2)
+				{
+					for (let i=0; i<returnNamesAndTypes.length; i++)
+					{
+						if (typeof result[i] === "string" && (returnNamesAndTypes[i].type.startsWith("uint") || returnNamesAndTypes[i].type.startsWith("int"))) result[i] = new BN(result[i], 10);
+						else throw "Web3 gave us '"+result[i]+"' as return value #"+i+" ("+returnNamesAndTypes[i].name+") of function "+theFuncName+", but it should have been a "+returnNamesAndTypes[i].type;
+					}
+				}
+				
+				// TODO figure out what this is for
+				else if (typeof result === "object" && result.constructor !== BN && result.constructor !== BigNumber && result.hasOwnProperty(0))
+				{
+					const arr = [];
+					for (let i=0; result.hasOwnProperty(i); i++)
+					{
+						let val = result[i];
+						if (typeof val === "string" && !val.startsWith("0x"))
+						{
+							try
+							{
+								val = new BN(val);
+							}
+							catch (e)
+							{
+							}
+						}
+						arr.push(val);
+					}
+					result = arr;
 				}
 			}
 			
-			// TODO figure out what this is for
-			else if (typeof result === "object" && result.constructor !== BN && result.constructor !== BigNumber && result.hasOwnProperty(0))
-			{
-				const arr = [];
-				for (let i=0; result.hasOwnProperty(i); i++)
-				{
-					let val = result[i];
-					if (typeof val === "string" && !val.startsWith("0x"))
-					{
-						try
-						{
-							val = new BN(val);
-						}
-						catch (e)
-						{
-						}
-					}
-					arr.push(val);
-				}
-				result = arr;
-			}
-
 			// If we should cache the return value, do it.
+			if (theFuncName === "tokenOfOwnerByIndex")
+			{
+				console.log("cached owner="+theArgs[0]+" prime="+result+" ownerArrayIndex="+theArgs[1]);
+				if (!owner_to_prime_to_ownerArrayIndex_cache.hasOwnProperty(theArgs[0])) owner_to_prime_to_ownerArrayIndex_cache[theArgs[0].toString()] = {};
+				owner_to_prime_to_ownerArrayIndex_cache[theArgs[0].toString()][result.toString()] = theArgs[1];
+			}
+			
 			if (theCacheKey !== null)
 			{
 				const cacheSettings = FUNCTION_TO_CACHE_SETTINGS[theFuncName];

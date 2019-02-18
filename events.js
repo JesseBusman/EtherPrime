@@ -10,12 +10,13 @@ function receivedEvent(result)
 {
 	{
 		const eventID = result.id + "_"+result.logIndex+"_"+result.blockNumber+"_"+result.signature;
-		if (processedEvents.hasOwnProperty(eventID))
+		if (processedEvents.hasOwnProperty(eventID) || localStorage.getItem(eventID) !== null)
 		{
 			console.log("Ignoring a "+result.event+" event because we've already processed it.");
 			return;
 		}
-		processedEvents[eventID] = true;
+        processedEvents[eventID] = true;
+        localStorage.setItem(eventID, "");
 	}
 
 	if (result.event === "EtherDeposited")
@@ -130,6 +131,13 @@ function receivedEvent(result)
         invalidateContractCallCache("addressPrimeCount", result.returnValues.owner);
         invalidateContractCallCache("amountOfParticipants");
 		
+        if (owner_to_prime_to_ownerArrayIndex_cache.hasOwnProperty(result.returnValues.owner) &&
+            owner_to_prime_to_ownerArrayIndex_cache[result.returnValues.owner].hasOwnProperty(result.returnValues.prime.toString()))
+        {
+            invalidateContractCallCache("tokenOfOwnerByIndex", result.returnValues.owner, owner_to_prime_to_ownerArrayIndex_cache[result.returnValues.owner][result.returnValues.prime.toString()]);
+            delete owner_to_prime_to_ownerArrayIndex_cache[result.returnValues.owner][result.returnValues.prime.toString()];
+        }
+
         if (searchPageIsDisplayingNumber !== false &&
             (new BN(result.returnValues.prime)).cmp(new BN(searchPageIsDisplayingNumber)) === 0)
         {
@@ -150,7 +158,19 @@ function receivedEvent(result)
         invalidateContractCallCache("amountOfParticipants");
         invalidateContractCallCache("getOwner", new BN(result.returnValues.prime));
         invalidateContractCallCache("ownerOf", new BN(result.returnValues.prime));
-
+        
+        if (owner_to_prime_to_ownerArrayIndex_cache.hasOwnProperty(result.returnValues.from) &&
+            owner_to_prime_to_ownerArrayIndex_cache[result.returnValues.from].hasOwnProperty(result.returnValues.prime.toString()))
+        {
+            console.log("uncached owner="+result.returnValues.from+" prime="+result.returnValues.prime+" ownerArrayIndex="+owner_to_prime_to_ownerArrayIndex_cache[result.returnValues.from][result.returnValues.prime.toString()]);
+            invalidateContractCallCache("tokenOfOwnerByIndex", result.returnValues.from, owner_to_prime_to_ownerArrayIndex_cache[result.returnValues.from][result.returnValues.prime.toString()]);
+            delete owner_to_prime_to_ownerArrayIndex_cache[result.returnValues.from][result.returnValues.prime.toString()];
+        }
+        if (owner_to_prime_to_ownerArrayIndex_cache.hasOwnProperty(result.returnValues.to))
+        {
+            delete owner_to_prime_to_ownerArrayIndex_cache[result.returnValues.to  ][result.returnValues.prime.toString()];
+        }
+        
         if (result.returnValues.to === userAccount || result.returnValues.from === userAccount)
         {
 			updateAccountBoxData();
