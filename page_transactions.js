@@ -60,7 +60,7 @@ function describeFunctionCall(funcName, value, gas, gasPrice, args, isCallToChat
 			}
 			else if (uniquePrimes.length === 1)
 			{
-				if (args[0].length === 1) return "Try to cancel buy order on prime "+linkPrime(uniquePrimes[0]);
+				if (args[0].length === 1) return "Try to cancel buy order #"+args[1]+" on prime "+linkPrime(uniquePrimes[0]);
 				else return "Try to cancel "+args[0].length+" buy orders on prime "+linkPrime(uniquePrimes[0]);
 			}
 			else
@@ -321,15 +321,22 @@ async function updateTransactionsPage_transaction(txhash)
 
 					localStorage.setItem("eventsOfTx_"+txhash, JSON.stringify(eventsForThisTx));
 
-					let resultsHtml = "<ul class='transactionResultsList'>";
-					for (let i=0; i<eventsForThisTx.length; i++)
+					if (eventsForThisTx.length === 0)
 					{
-						const eventDescription = describeEvent(eventsForThisTx[i]);
-						if (eventDescription !== null) resultsHtml += "<li>"+eventDescription+"</li>";
+						row.childNodes[3].innerHTML = "<span style='color:red;'>Nothing happened!</span>";
 					}
-					resultsHtml += "</ul>";
+					else
+					{
+						let resultsHtml = "<ul class='transactionResultsList'>";
+						for (let i=0; i<eventsForThisTx.length; i++)
+						{
+							const eventDescription = describeEvent(eventsForThisTx[i]);
+							if (eventDescription !== null) resultsHtml += "<li>"+eventDescription+"</li>";
+						}
+						resultsHtml += "</ul>";
 
-					row.childNodes[3].innerHTML = resultsHtml;
+						row.childNodes[3].innerHTML = resultsHtml;
+					}
 				}
 			})(txhash, row);
 

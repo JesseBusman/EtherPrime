@@ -70,40 +70,40 @@ const FUNCTION_TO_CACHE_SETTINGS = {
 	],
 
 	// Invalidated by events: Transfer
-    "getOwner": [{"cacheTimeout": 60, "persistAcrossPageReloads": false}],
-	"ownerOf": [{"cacheTimeout": 60, "persistAcrossPageReloads": false}],
+  "getOwner": [{"cacheTimeout": 360, "persistAcrossPageReloads": true}],
+	"ownerOf": [{"cacheTimeout": 360, "persistAcrossPageReloads": true}],
 	
 	// Invalidated by events: DefinitePrimeDiscovered
-	"amountOfDefinitePrimesFound": [{"cacheTimeout": 360, "persistAcrossPageReloads": false}],
-	"largestDefinitePrimeFound": [{"cacheTimeout": 360, "persistAcrossPageReloads": false}],
+	"amountOfDefinitePrimesFound": [{"cacheTimeout": 360, "persistAcrossPageReloads": true}],
+	"largestDefinitePrimeFound": [{"cacheTimeout": 360, "persistAcrossPageReloads": true}],
 	
 	// Invalidated by events: SellPriceSet
-	"primeToSellOrderPrice": [{"cacheTimeout": 360, "persistAcrossPageReloads": false}],
+	"primeToSellOrderPrice": [{"cacheTimeout": 360, "persistAcrossPageReloads": true}],
 
 	// Invalidated by events: BuyOrderCreated, BuyOrderDestroyed
-	"findHighestBidBuyOrder": [{"cacheTimeout": 360, "persistAcrossPageReloads": false}],
+	"findHighestBidBuyOrder": [{"cacheTimeout": 360, "persistAcrossPageReloads": true}],
 	"findFreeBuyOrderSlot": [{"cacheTimeout": 0, "persistAcrossPageReloads": false}],
-	"countPrimeBuyOrders": [{"cacheTimeout": 360, "persistAcrossPageReloads": false}],
-	"getPrimeBuyOrder": [{"cacheTimeout": 360, "persistAcrossPageReloads": false}],
-	"findBuyOrdersOfUserOnPrime": [{"cacheTimeout": 360, "persistAcrossPageReloads": false}],
+	"countPrimeBuyOrders": [{"cacheTimeout": 360, "persistAcrossPageReloads": true}],
+	"getPrimeBuyOrder": [{"cacheTimeout": 360, "persistAcrossPageReloads": true}],
+	"findBuyOrdersOfUserOnPrime": [{"cacheTimeout": 360, "persistAcrossPageReloads": true}],
 
 	// Invalidated by events: none
-	"tokenOfOwnerByIndex": [{"cacheTimeout": 120, "persistAcrossPageReloads": false}],
+	"tokenOfOwnerByIndex": [{"cacheTimeout": 360, "persistAcrossPageReloads": true}],
 
 	// Invalidated by events: DefinitePrimeDiscovered, ProbablePrimeDiscovered, ProbablePrimeDisproven, Transfer
-	"addressPrimeCount": [{"cacheTimeout": 3600, "persistAcrossPageReloads": false}],
+	"addressPrimeCount": [{"cacheTimeout": 360, "persistAcrossPageReloads": true}],
 
 	// Invalidated by events: DefinitePrimeDiscovered, ProbablePrimeDiscovered
-	"addressToGasSpent": [{"cacheTimeout": 3600, "persistAcrossPageReloads": false}],
-	"addressToEtherSpent": [{"cacheTimeout": 3600, "persistAcrossPageReloads": false}],
+	"addressToGasSpent": [{"cacheTimeout": 360, "persistAcrossPageReloads": true}],
+	"addressToEtherSpent": [{"cacheTimeout": 360, "persistAcrossPageReloads": true}],
 
 	// Invalidated by events: ProbablePrimeDiscovered
-	"addressToProbablePrimesClaimed": [{"cacheTimeout": 3600, "persistAcrossPageReloads": false}],
-	"amountOfProbablePrimesFound": [{"cacheTimeout": 3600, "persistAcrossPageReloads": false}],
+	"addressToProbablePrimesClaimed": [{"cacheTimeout": 360, "persistAcrossPageReloads": true}],
+	"amountOfProbablePrimesFound": [{"cacheTimeout": 360, "persistAcrossPageReloads": true}],
 
 	// Invalidated by events: ProbablePrimeDisproven
-	"addressToProbablePrimesDisprovenBy": [{"cacheTimeout": 3600, "persistAcrossPageReloads": false}],
-	"addressToProbablePrimesDisprovenFrom": [{"cacheTimeout": 3600, "persistAcrossPageReloads": false}],
+	"addressToProbablePrimesDisprovenBy": [{"cacheTimeout": 360, "persistAcrossPageReloads": true}],
+	"addressToProbablePrimesDisprovenFrom": [{"cacheTimeout": 360, "persistAcrossPageReloads": true}],
 
 	// Invalidated by events: Transfer
 	"amountOfParticipants": [{"cacheTimeout": 10, "persistAcrossPageReloads": false}],

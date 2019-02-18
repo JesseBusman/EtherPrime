@@ -92,14 +92,6 @@ async function updateSearchPage()
 
 		console.log("Prime "+qInt+" has "+buyOrderCount+" buy orders!");
 
-		let buyOrders = [];
-		for (let i=0; i<parseInt(buyOrderCount); i++)
-		{
-			buyOrders.push(callContract("getPrimeBuyOrder", qInt, i));
-		}
-		buyOrders = await Promise.all(buyOrders);
-
-		buyOrders = buyOrders.sort((a, b) => b[1].cmp(a[1]));
 
 		let newHTML = "";
 
@@ -181,112 +173,131 @@ async function updateSearchPage()
 			console.log("reusing a userBox for "+address);
 		}
 
-		buyOrdersDiv.innerHTML = "";
 
 		let amountOfBuyOrdersDisplayed = 0;
 
-		for (let i=0; i<buyOrders.length; i++)
+		if (buyOrderCount === 0)
 		{
-			const bidder = buyOrders[i][0];
-			const bid = buyOrders[i][1];
-			const bidderHasEnoughBalance = buyOrders[i][2];
+			buyOrdersDiv.textContent = "There are currently no buy orders.";
+		}
+		else
+		{
+			buyOrdersDiv.textContent = "Loading data for "+buyOrderCount+" buy orders...";
 
-			if (bid.cmpn(0) === 0) continue;
-			if (!bidderHasEnoughBalance && bidder !== userAccount) continue;
-
-			console.log("Buy order:", buyOrders[i]);
-			const buyOrderDiv = document.createElement("div");
+			let buyOrders = [];
+			for (let i=0; i<parseInt(buyOrderCount); i++)
 			{
-				let userBox;
-				if (address_to_userBoxes[bidder] && address_to_userBoxes[bidder].length >= 1) userBox = address_to_userBoxes[bidder].pop();
-				else userBox = createUserBox(bidder);
-
-				buyOrderDiv.appendChild(userBox);
-				const priceDiv = document.createElement("div");
-				{
-					priceDiv.classList.add("bidAmount");
-					priceDiv.innerHTML = fromWei_short(bid);
-				}
-				buyOrderDiv.appendChild(priceDiv);
-
-				if (owner === userAccount)
-				{
-					const acceptBuyOrderButton = document.createElement("a");
-					{
-						acceptBuyOrderButton.setAttribute("href", "#");
-						acceptBuyOrderButton.textContent = "Sell now for "+web3.utils.fromWei(bid)+" ETH";
-						acceptBuyOrderButton.onclick = (function(thePrime, theBuyOrderIndex, theAmount){
-							return function(){
-								callContract("setSellPriceAndMatchRange", thePrime, theAmount, theBuyOrderIndex, theBuyOrderIndex);
-								return false;
-							};
-						})(qInt, i, bid);
-					}
-					buyOrderDiv.appendChild(acceptBuyOrderButton);
-				}
-
-				if (bidder === userAccount)
-				{
-					const cancelBuyOrderButton = document.createElement("a");
-					{
-						cancelBuyOrderButton.setAttribute("href", "#");
-						cancelBuyOrderButton.textContent = "Cancel buy order";
-						cancelBuyOrderButton.onclick = (function(thePrime, theBuyOrderIndex){
-							return function(){
-								callContract("tryCancelBuyOrders", [thePrime], [theBuyOrderIndex]);
-								return false;
-							};
-						})(qInt, i);
-					}
-					buyOrderDiv.appendChild(cancelBuyOrderButton);
-
-					const editBuyOrderButton = document.createElement("a");
-					{
-						editBuyOrderButton.setAttribute("href", "#");
-						editBuyOrderButton.textContent = "Edit buy order";
-						editBuyOrderButton.onclick = (function(thePrime, theBuyOrderIndex, theOldBid){
-							return function(){
-								(async function(){
-									let newBid = web3.utils.fromWei(theOldBid);
-									while (true)
-									{
-										try
-										{
-											newBid = prompt("Please enter the new buy order amount:", newBid);
-											if (newBid === null || newBid === undefined || newBid === false) break;
-											newBid = newBid.trim();
-											if (newBid === "") break;
-											if (! /^([0-9\.]+)$/.test(newBid)) throw "Incorrect number";
-											newBid = web3.utils.toWei(newBid);
-										}
-										catch (e)
-										{
-											alert("Input error. Please enter a valid amount of ETH");
-											continue;
-										}
-										callContract("modifyBuyOrder", thePrime, theBuyOrderIndex, newBid);
-										break;
-									}
-								})();
-								return false;
-							};
-						})(qInt, i, bid);
-					}
-					buyOrderDiv.appendChild(editBuyOrderButton);
-
-					if (!bidderHasEnoughBalance)
-					{
-						const div = document.createElement("div");
-						{
-							div.classList.add("inactiveBuyOrderText");
-							div.textContent = "Buy order inactive because you don't have enough balance.";
-						}
-						buyOrderDiv.appendChild(div);
-					}
-				}
+				buyOrders.push(callContract("getPrimeBuyOrder", qInt, i));
 			}
-			buyOrdersDiv.appendChild(buyOrderDiv);
-			amountOfBuyOrdersDisplayed++;
+			buyOrders = await Promise.all(buyOrders);
+
+			buyOrders = buyOrders.sort((a, b) => b[1].cmp(a[1]));
+
+			buyOrdersDiv.textContent = "";
+
+			for (let i=0; i<buyOrders.length; i++)
+			{
+				const bidder = buyOrders[i][0];
+				const bid = buyOrders[i][1];
+				const bidderHasEnoughBalance = buyOrders[i][2];
+
+				if (bid.cmpn(0) === 0) continue;
+				if (!bidderHasEnoughBalance && bidder !== userAccount) continue;
+
+				console.log("Buy order:", buyOrders[i]);
+				const buyOrderDiv = document.createElement("div");
+				{
+					let userBox;
+					if (address_to_userBoxes[bidder] && address_to_userBoxes[bidder].length >= 1) userBox = address_to_userBoxes[bidder].pop();
+					else userBox = createUserBox(bidder);
+
+					buyOrderDiv.appendChild(userBox);
+					const priceDiv = document.createElement("div");
+					{
+						priceDiv.classList.add("bidAmount");
+						priceDiv.innerHTML = fromWei_short(bid);
+					}
+					buyOrderDiv.appendChild(priceDiv);
+
+					if (owner === userAccount)
+					{
+						const acceptBuyOrderButton = document.createElement("a");
+						{
+							acceptBuyOrderButton.setAttribute("href", "#");
+							acceptBuyOrderButton.textContent = "Sell now for "+web3.utils.fromWei(bid)+" ETH";
+							acceptBuyOrderButton.onclick = (function(thePrime, theBuyOrderIndex, theAmount){
+								return function(){
+									callContract("setSellPriceAndMatchRange", thePrime, theAmount, theBuyOrderIndex, theBuyOrderIndex);
+									return false;
+								};
+							})(qInt, i, bid);
+						}
+						buyOrderDiv.appendChild(acceptBuyOrderButton);
+					}
+
+					if (bidder === userAccount)
+					{
+						const cancelBuyOrderButton = document.createElement("a");
+						{
+							cancelBuyOrderButton.setAttribute("href", "#");
+							cancelBuyOrderButton.textContent = "Cancel buy order";
+							cancelBuyOrderButton.onclick = (function(thePrime, theBuyOrderIndex){
+								return function(){
+									callContract("tryCancelBuyOrders", [thePrime], [theBuyOrderIndex]);
+									return false;
+								};
+							})(qInt, i);
+						}
+						buyOrderDiv.appendChild(cancelBuyOrderButton);
+
+						const editBuyOrderButton = document.createElement("a");
+						{
+							editBuyOrderButton.setAttribute("href", "#");
+							editBuyOrderButton.textContent = "Edit buy order";
+							editBuyOrderButton.onclick = (function(thePrime, theBuyOrderIndex, theOldBid){
+								return function(){
+									(async function(){
+										let newBid = web3.utils.fromWei(theOldBid);
+										while (true)
+										{
+											try
+											{
+												newBid = prompt("Please enter the new buy order amount:", newBid);
+												if (newBid === null || newBid === undefined || newBid === false) break;
+												newBid = newBid.trim();
+												if (newBid === "") break;
+												if (! /^([0-9\.]+)$/.test(newBid)) throw "Incorrect number";
+												newBid = web3.utils.toWei(newBid);
+											}
+											catch (e)
+											{
+												alert("Input error. Please enter a valid amount of ETH");
+												continue;
+											}
+											callContract("modifyBuyOrder", thePrime, theBuyOrderIndex, newBid);
+											break;
+										}
+									})();
+									return false;
+								};
+							})(qInt, i, bid);
+						}
+						buyOrderDiv.appendChild(editBuyOrderButton);
+
+						if (!bidderHasEnoughBalance)
+						{
+							const div = document.createElement("div");
+							{
+								div.classList.add("inactiveBuyOrderText");
+								div.textContent = "Buy order inactive because you don't have enough balance.";
+							}
+							buyOrderDiv.appendChild(div);
+						}
+					}
+				}
+				buyOrdersDiv.appendChild(buyOrderDiv);
+				amountOfBuyOrdersDisplayed++;
+			}
 		}
 
 		if (amountOfBuyOrdersDisplayed === 0)

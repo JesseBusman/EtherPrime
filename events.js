@@ -8,7 +8,7 @@ let highestEventBlockNumberSeen = 0;
 // - Interpret it,
 // - Invalidate the cached values the transaction may have affected
 // - Trigger an update of the relevant UI elements
-function receivedEvent(result)
+function receivedEvent(result, isPastEvent)
 {
 	{
 		const eventID = result.id + "_"+result.logIndex+"_"+result.blockNumber+"_"+result.signature;
@@ -27,11 +27,13 @@ function receivedEvent(result)
         localStorage.setItem("lastEventsBlockProcessed", ""+highestEventBlockNumberSeen);
     }
 
+    if (isPastEvent) console.error("Processing a missed event:");
+
 	if (result.event === "EtherDeposited")
 	{
-        console.log("EtherDeposited event! result:", result);
+        /*console.log("EtherDeposited event! result:", result);
         console.log("depositer="+result.returnValues.depositer);
-		console.log("amount="+result.returnValues.amount);
+		console.log("amount="+result.returnValues.amount);*/
 		
 		invalidateContractCallCache("addressToEtherBalance", result.returnValues.depositer);
 
@@ -44,7 +46,7 @@ function receivedEvent(result)
 	}
 	else if (result.event === "ChatMessageSent")
 	{
-		console.log("ChatMessageSent event!", result);
+		//console.log("ChatMessageSent event!", result);
 
 		invalidateContractCallCache("amountOfChatMessages");
 		invalidateContractCallCache("getChatMessage", new BN(result.returnValues.index));
@@ -55,10 +57,11 @@ function receivedEvent(result)
 	}
 	else if (result.event === "DefinitePrimeDiscovered")
 	{
-        console.log("definite prime discover event! result:", result);
+        /*console.log("definite prime discover event! result:", result);
         console.log("discoverer="+result.returnValues.discoverer);
         console.log("prime="+result.returnValues.prime.toString(10));
         console.log("result.returnValues.definitePrimesArrayIndex="+result.returnValues.definitePrimesArrayIndex);
+        */
 
         invalidateContractCallCache("amountOfDefinitePrimesFound");
         invalidateContractCallCache("definitePrimes", new BN(result.returnValues.definitePrimesArrayIndex));
@@ -68,6 +71,9 @@ function receivedEvent(result)
         invalidateContractCallCache("addressToEtherSpent", result.returnValues.discoverer);
         invalidateContractCallCache("numberBeingTested");
         invalidateContractCallCache("divisorIndexBeingTested");
+        invalidateContractCallCache("largestDefinitePrimeFound");
+
+
         invalidateContractCallCache("numberToDivisor", new BN(result.returnValues.prime));
         invalidateContractCallCache("getPrimeFactors", new BN(result.returnValues.prime));
 
@@ -86,10 +92,10 @@ function receivedEvent(result)
 	}
 	else if (result.event === "ProbablePrimeDiscovered")
 	{
-		console.log("probable prime discover event! result:", result);
+		/*console.log("probable prime discover event! result:", result);
         console.log("discoverer="+result.returnValues.discoverer);
         console.log("probable prime="+result.returnValues.prime.toString(10));
-        console.log("result.returnValues.probablePrimesArrayIndex="+new BN(result.returnValues.probablePrimesArrayIndex));
+        console.log("result.returnValues.probablePrimesArrayIndex="+new BN(result.returnValues.probablePrimesArrayIndex));*/
 
         invalidateContractCallCache("amountOfProbablePrimesFound");
         invalidateContractCallCache("addressToProbablePrimesClaimed", result.returnValues.discoverer);
@@ -115,12 +121,12 @@ function receivedEvent(result)
 	}
 	else if (result.event === "ProbablePrimeDisproven")
 	{
-		console.log("probable prime disproven event! result:", result);
+		/*console.log("probable prime disproven event! result:", result);
         console.log("disprover="+result.returnValues.disprover);
         console.log("ex-owner="+result.returnValues.owner);
         console.log("divisor="+result.returnValues.divisor.toString(10));
         console.log("probable prime="+result.returnValues.prime.toString(10));
-        console.log("result.returnValues.probablePrimesArrayIndex="+result.returnValues.probablePrimesArrayIndex);
+        console.log("result.returnValues.probablePrimesArrayIndex="+result.returnValues.probablePrimesArrayIndex);*/
 
         invalidateContractCallCache("amountOfProbablePrimesFound");
         invalidateContractCallCache("probablePrimes", new BN(result.returnValues.probablePrimesArrayIndex));
@@ -156,10 +162,10 @@ function receivedEvent(result)
 	}
 	else if (result.event === "Transfer")
 	{
-        console.log("prime Transfer event! result:", result);
+        /*console.log("prime Transfer event! result:", result);
         console.log("from="+result.returnValues.from);
         console.log("to="+result.returnValues.to);
-        console.log("prime="+result.returnValues.prime.toString(10));
+        console.log("prime="+result.returnValues.prime.toString(10));*/
         
         invalidateContractCallCache("addressPrimeCount", result.returnValues.from);
         invalidateContractCallCache("addressPrimeCount", result.returnValues.to);
@@ -188,11 +194,11 @@ function receivedEvent(result)
 	}
 	else if (result.event === "BuyOrderCreated")
 	{
-        console.log("BuyOrderCreated event! result:", result);
+        /*console.log("BuyOrderCreated event! result:", result);
         console.log("buyer="+result.returnValues.buyer);
         console.log("price="+result.returnValues.bid);
         console.log("prime="+result.returnValues.prime.toString(10));
-        console.log("buyOrdersArrayIndex="+result.returnValues.buyOrdersArrayIndex);
+        console.log("buyOrdersArrayIndex="+result.returnValues.buyOrdersArrayIndex);*/
 
         invalidateContractCallCache("findHighestBidBuyOrder", new BN(result.returnValues.prime));
 		invalidateContractCallCache("findFreeBuyOrderSlot", new BN(result.returnValues.prime));
@@ -210,10 +216,10 @@ function receivedEvent(result)
 	}
 	else if (result.event === "BuyOrderDestroyed")
 	{
-        console.log("BuyOrderDestroyed event! result:", result);
+        /*console.log("BuyOrderDestroyed event! result:", result);
         console.log("buyer="+result.returnValues.buyer);
         console.log("prime="+result.returnValues.prime.toString(10));
-        console.log("buyOrdersArrayIndex="+result.returnValues.buyOrdersArrayIndex);
+        console.log("buyOrdersArrayIndex="+result.returnValues.buyOrdersArrayIndex);*/
 
         invalidateContractCallCache("findHighestBidBuyOrder", new BN(result.returnValues.prime));
         invalidateContractCallCache("findFreeBuyOrderSlot", new BN(result.returnValues.prime));
@@ -231,10 +237,10 @@ function receivedEvent(result)
 	}
 	else if (result.event === "SellPriceSet")
 	{
-        console.log("SellPriceSet event! result:", result);
+        /*console.log("SellPriceSet event! result:", result);
         console.log("seller="+result.returnValues.seller);
         console.log("prime="+result.returnValues.prime.toString(10));
-        console.log("price="+result.returnValues.price);
+        console.log("price="+result.returnValues.price);*/
 
         invalidateContractCallCache("primeToSellOrderPrice", new BN(result.returnValues.prime));
 		
@@ -248,12 +254,12 @@ function receivedEvent(result)
 	}
 	else if (result.event === "PrimeTraded")
 	{
-        console.log("PrimeTraded event! result:", result);
+        /*console.log("PrimeTraded event! result:", result);
         console.log("seller="+result.returnValues.seller);
         console.log("buyer="+result.returnValues.buyer);
         console.log("prime="+result.returnValues.prime.toString(10));
         console.log("price="+result.returnValues.price);
-        console.log("buyOrdersArrayIndex="+result.returnValues.buyOrdersArrayIndex);
+        console.log("buyOrdersArrayIndex="+result.returnValues.buyOrdersArrayIndex);*/
 
         invalidateContractCallCache("findHighestBidBuyOrder", new BN(result.returnValues.prime));
 		invalidateContractCallCache("findFreeBuyOrderSlot", new BN(result.returnValues.prime));
@@ -272,9 +278,9 @@ function receivedEvent(result)
 	}
 	else if (result.event === "UsernameSet")
 	{
-        console.log("UsernameSet event! result:", result);
+        /*console.log("UsernameSet event! result:", result);
         console.log("user="+result.returnValues.user);
-        console.log("username="+result.returnValues.username);
+        console.log("username="+result.returnValues.username);*/
 
         invalidateContractCallCache("addressToUsername", result.returnValues.user);
         invalidateContractCallCache("usernameToAddress", result.returnValues.username);
@@ -293,9 +299,9 @@ function receivedEvent(result)
 	}
 	else if (result.event === "EtherWithdrawn")
 	{
-        console.log("EtherWithdrawn event! result:", result);
+        /*console.log("EtherWithdrawn event! result:", result);
         console.log("withdrawer="+result.returnValues.withdrawer);
-        console.log("amount="+result.returnValues.amount);
+        console.log("amount="+result.returnValues.amount);*/
 		
 		invalidateContractCallCache("addressToEtherBalance", result.returnValues.withdrawer);
 
@@ -314,26 +320,41 @@ function receivedEvent(result)
 
 function processMissedEvents()
 {
-    let lastEventsBlockProcessed = localStorage.getItem("lastEventsBlockProcessed");
-    if (lastEventsBlockProcessed === null)
-    {
-        return;
-    }
-    else
-    {
-        lastEventsBlockProcessed = parseInt(lastEventsBlockProcessed);
-        etherPrime.getPastEvents("allEvents", {"fromBlock": lastEventsBlockProcessed}, function(err, result){
-            if (err !== null)
-            {
-                console.error("Error in getPastEvents:");
-                console.error(err);
-                return;
-            }
+    return new Promise(async function(resolve, reject){
+        let lastEventsBlockProcessed = localStorage.getItem("lastEventsBlockProcessed");
+        if (lastEventsBlockProcessed === null)
+        {
+            lastEventsBlockProcessed = parseInt(await web3.eth.getBlockNumber());
+            
+            localStorage.setItem("lastEventsBlockProcessed", ""+lastEventsBlockProcessed);
+            
+            resolve();
+        }
+        else
+        {
+            lastEventsBlockProcessed = parseInt(lastEventsBlockProcessed);
 
-            console.log("Processing a missed event...");
-            receivedEvent(result);
-        });
-    }
+            etherPrime.getPastEvents("allEvents", {"fromBlock": lastEventsBlockProcessed-1}, function(err, result){
+                if (err !== null)
+                {
+                    console.error("Error in getPastEvents:");
+                    console.error(err);
+                    resolve();
+                    return;
+                }
+
+                console.error("Processing "+result.length+" missed events...");
+
+                for (let i=0; i<result.length; i++)
+                {
+                    receivedEvent(result, true);
+                }
+
+                updateUI();
+                resolve();
+            });
+        }
+    });
 }
 
 function startListeningEvents()
@@ -345,7 +366,7 @@ function startListeningEvents()
             console.error(err);
             return;
         }
-		receivedEvent(result);
+		receivedEvent(result, false);
 	});
 
 	// Listen for new blocks

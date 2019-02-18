@@ -122,6 +122,8 @@ async function init()
 		return;
 	}
 
+	processMissedEvents();
+
 	initComputePage();
 
 	// If the URL links to a specific page, go there.
