@@ -365,6 +365,9 @@ function invalidateContractCallCache(funcName, ...args)
 	}
 }
 
+
+const cacheKey_to_pendingCallbacks = {};
+
 function callContract(funcName)
 {
 	let isCallToChatContract;
@@ -437,6 +440,8 @@ function callContract(funcName)
 			}
 			else if (cacheTimeout === Infinity)
 			{
+				console.log("Loading contract data from cache :)", funcName);
+
 				return value;
 			}
 			else if (cacheTimeout === 0)
@@ -447,6 +452,8 @@ function callContract(funcName)
 			}
 			else if (cachedTimestamp + cacheTimeout > Math.floor(Date.now() / 1000))
 			{
+				console.log("Loading contract data from cache :)", funcName);
+
 				// Cached value has not expired yet
 				return value;
 			}
@@ -536,7 +543,7 @@ function callContract(funcName)
 			// If we should cache the return value, do it.
 			if (theFuncName === "tokenOfOwnerByIndex")
 			{
-				console.log("cached owner="+theArgs[0]+" prime="+result+" ownerArrayIndex="+theArgs[1]);
+				//console.log("cached owner="+theArgs[0]+" prime="+result+" ownerArrayIndex="+theArgs[1]);
 				if (!owner_to_prime_to_ownerArrayIndex_cache.hasOwnProperty(theArgs[0])) owner_to_prime_to_ownerArrayIndex_cache[theArgs[0].toString()] = {};
 				owner_to_prime_to_ownerArrayIndex_cache[theArgs[0].toString()][result.toString()] = theArgs[1];
 			}
@@ -579,8 +586,34 @@ function callContract(funcName)
 		// Initiate the contract function call
 		if (theIsViewOrPure)
 		{
-			if (theTransactionObject !== null) func(...theArgs).call(theTransactionObject, callback);
-			else func(...theArgs).call(callback);
+			if (!cacheKey_to_pendingCallbacks.hasOwnProperty(theCacheKey))
+			{
+				cacheKey_to_pendingCallbacks[theCacheKey] = [];
+			}
+			const callbacks = cacheKey_to_pendingCallbacks[theCacheKey];
+
+			callbacks.push(callback);
+
+			if (callbacks.length === 1)
+			{
+				console.log("Loading contract data from web3 :(", theFuncName);
+
+				const runCallbacksCallback = function(err, result) {
+					console.log("result of "+theFuncName+" arrived! running "+callbacks.length+" callbacks");
+
+					while (callbacks.length > 0)
+					{
+						callbacks.pop()(err, result);
+					}
+				};
+		
+				if (theTransactionObject !== null) func(...theArgs).call(theTransactionObject, runCallbacksCallback);
+				else func(...theArgs).call(runCallbacksCallback);
+			}
+			else
+			{
+				console.log("Waiting for a previous contract data load from web3 (queue size="+callbacks.length+") :(", theFuncName);
+			}
 		}
 		else
 		{
