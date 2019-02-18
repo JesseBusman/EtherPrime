@@ -42,7 +42,7 @@ function describeFunctionCall(funcName, value, gas, gasPrice, args, isCallToChat
 		{
 			return "Try to compute definite prime numbers<br/>Gas: "+gas.toString(10)+"<br/>Gas price: "+((new BigNumber(gasPrice.toString()).div(1000*1000*1000).toString())+" Gwei / gas");
 		}
-		else if (funcName === "claimProbablePrime") return "Claim the number "+args[0]+" as a probable prime";
+		else if (funcName === "claimProbablePrime") return "Claim the number "+linkPrime(args[0])+" as a probable prime";
 		else if (funcName === "setUsername") return "Set username to '"+escapeHtml(bytes32_to_string(args[0]))+"'";
 		else if (funcName === "depositEther") return "Deposit "+web3.utils.fromWei(value) + " ETH";
 		else if (funcName === "tryCancelBuyOrders")
@@ -232,20 +232,29 @@ async function updateTransactionsPage_transaction(txhash)
         if (row.getAttribute("confirmed") === "yes") return;
     }
 
-	let tx, txIsConfirmed;
-	if (localStorage.getItem("tx_"+txhash))
+	let tx, txReceipt, txIsConfirmed;
+	if (localStorage.getItem("tx_"+txhash) && localStorage.getItem("txReceipt_"+txhash))
 	{
 		tx = JSON.parse(localStorage.getItem("tx_"+txhash));
+		txReceipt = JSON.parse(localStorage.getItem("txReceipt_"+txhash));
 		txIsConfirmed = true;
 	}
 	else
 	{
-		tx = await new Promise(function(resolve, reject){
-			web3.eth.getTransaction(txhash, function(err, result){
-				if (err !== null) reject(err);
-				else resolve(result);
+		[tx, txReceipt] = await Promise.all([
+			new Promise(function(resolve, reject){
+				web3.eth.getTransaction(txhash, function(err, result){
+					if (err !== null) reject(err);
+					else resolve(result);
+				})
+			}),
+			new Promise(function(resolve, reject){
+				web3.eth.getTransactionReceipt(txhash, function(err, result){
+					if (err !== null) reject(err);
+					else resolve(result);
+				})
 			})
-		});
+		]);
 
 		if (tx === null || tx === undefined)
 		{
@@ -257,7 +266,13 @@ async function updateTransactionsPage_transaction(txhash)
 		if (txIsConfirmed)
 		{
 			localStorage.setItem("tx_"+txhash, JSON.stringify(tx));
+			localStorage.setItem("txReceipt_"+txhash, JSON.stringify(txReceipt));
 		}
+	}
+
+	if (txReceipt.transactionHash === "0xb8cfb122ebd3e4960c881b198be562ed324b4a07458fce4018d4b8aa1bf8d935")
+	{
+		console.log(txReceipt);
 	}
 	
 	const isTxToChatContract = tx.to.toLowerCase() === ETHER_PRIME_CHAT_ADDRESS.toLowerCase();
@@ -279,47 +294,56 @@ async function updateTransactionsPage_transaction(txhash)
     {
         row.childNodes[2].innerText = "Yes";
 		row.setAttribute("confirmed", "yes");
-		
-		const fetchedEventsCallback = (function(txhash, row) {
-			return function(error, events) {
-				if (error !== null)
-				{
-					console.error("could not fetch events! Error occurred");
-					console.error(error);
-					return;
-				}
 
-				const eventsForThisTx = [];
-				for (let i=0; i<events.length; i++)
-				{
-					receivedEvent(events[i]);
-					if (events[i].transactionHash === txhash) eventsForThisTx.push(events[i]);
-				}
-
-				localStorage.setItem("eventsOfTx_"+txhash, JSON.stringify(eventsForThisTx));
-
-				let resultsHtml = "<ul class='transactionResultsList'>";
-				for (let i=0; i<eventsForThisTx.length; i++)
-				{
-					const eventDescription = describeEvent(eventsForThisTx[i]);
-					if (eventDescription !== null) resultsHtml += "<li>"+eventDescription+"</li>";
-				}
-				resultsHtml += "</ul>";
-
-				row.childNodes[3].innerHTML = resultsHtml;
-			}
-		})(txhash, row);
-
-		if (localStorage.getItem("eventsOfTx_"+txhash))
+		// If the transaction reverted...
+		if (txReceipt.status === false)
 		{
-			fetchedEventsCallback(null, JSON.parse(localStorage.getItem("eventsOfTx_"+txhash)));
+			row.childNodes[3].innerHTML = "<span style='color:red;'>Transaction reverted!</span>";
 		}
+
 		else
 		{
-			(isTxToChatContract ? etherPrimeChat : etherPrime).getPastEvents("allEvents", {
-				fromBlock: tx.blockNumber,
-				toBlock: tx.blockNumber
-			}, fetchedEventsCallback);
+			const fetchedEventsCallback = (function(txhash, row) {
+				return function(error, events) {
+					if (error !== null)
+					{
+						console.error("could not fetch events! Error occurred");
+						console.error(error);
+						return;
+					}
+
+					const eventsForThisTx = [];
+					for (let i=0; i<events.length; i++)
+					{
+						receivedEvent(events[i]);
+						if (events[i].transactionHash === txhash) eventsForThisTx.push(events[i]);
+					}
+
+					localStorage.setItem("eventsOfTx_"+txhash, JSON.stringify(eventsForThisTx));
+
+					let resultsHtml = "<ul class='transactionResultsList'>";
+					for (let i=0; i<eventsForThisTx.length; i++)
+					{
+						const eventDescription = describeEvent(eventsForThisTx[i]);
+						if (eventDescription !== null) resultsHtml += "<li>"+eventDescription+"</li>";
+					}
+					resultsHtml += "</ul>";
+
+					row.childNodes[3].innerHTML = resultsHtml;
+				}
+			})(txhash, row);
+
+			if (localStorage.getItem("eventsOfTx_"+txhash))
+			{
+				fetchedEventsCallback(null, JSON.parse(localStorage.getItem("eventsOfTx_"+txhash)));
+			}
+			else
+			{
+				(isTxToChatContract ? etherPrimeChat : etherPrime).getPastEvents("allEvents", {
+					fromBlock: tx.blockNumber,
+					toBlock: tx.blockNumber
+				}, fetchedEventsCallback);
+			}
 		}
     }
     else
