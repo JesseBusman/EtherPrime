@@ -146,7 +146,8 @@ async function init()
 
 async function updateUI()
 {
-	console.log("updateUI() called");
+	console.log("updateUI() is running...");
+	
 	updateAccountData();
 	updateComputePage();
 	updateTitleStatistics();

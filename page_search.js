@@ -10,6 +10,8 @@ function claimProbablePrime(prime)
 
 async function updateSearchPage()
 {
+	console.log("updateSearchPage() is running...");
+	
 	if (searchPageIsDisplayingAddress !== false)
 	{
 		const owner = searchPageIsDisplayingAddress;

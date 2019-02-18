@@ -12,6 +12,8 @@ async function updateChatPage()
 	if (updateChatPage_running) { updateChatPage__shouldReRunWhenFinished = true; return; }
 	updateChatPage_running = true;
 
+	console.log("updateChatPage() is running...");
+
 	let [
 		amountOfChatMessages,
 		GAS_PER_CHAT_MESSAGE,

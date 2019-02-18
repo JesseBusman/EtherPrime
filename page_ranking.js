@@ -7,6 +7,7 @@ let sortColumn = 0;
 $("pageRanking").getElementsByTagName("th")[sortColumn+1].style.textDecoration = "underline";
 async function updateRankingPage()
 {
+	// Prevent re-entrancy
 	if (updateRankingPage_running) return;
 	updateRankingPage_running = true;
 
