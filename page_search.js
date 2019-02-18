@@ -231,7 +231,7 @@ async function updateSearchPage()
 						cancelBuyOrderButton.innerText = "Cancel buy order";
 						cancelBuyOrderButton.onclick = (function(thePrime, theBuyOrderIndex){
 							return function(){
-								callContract("cancelBuyOrders", [thePrime], [theBuyOrderIndex]);
+								callContract("tryCancelBuyOrders", [thePrime], [theBuyOrderIndex]);
 								return false;
 							};
 						})(qInt, i);
