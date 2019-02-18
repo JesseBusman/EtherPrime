@@ -161,9 +161,9 @@ async function updateUI()
 async function updateTitleStatistics()
 {
 	[
-		$("largestPrimeCounter").innerText,
-		$("definitePrimeCounter").innerText,
-		$("probablePrimeCounter").innerText,
+		$("largestPrimeCounter").textContent,
+		$("definitePrimeCounter").textContent,
+		$("probablePrimeCounter").textContent,
 	] = await Promise.all([
 		callContract("largestDefinitePrimeFound"),
 		callContract("amountOfDefinitePrimesFound"),
@@ -192,7 +192,7 @@ function createBackgroundFlyingPrime()
 	const div = document.createElement("div");
 	{
 		div.classList.add("flyingPrime");
-		div.innerText = Math.floor(Math.random()*1000).toString();
+		div.textContent = Math.floor(Math.random()*1000).toString();
 		div.style.position = "fixed";
 		div.style.zIndex = -1000;
 	}

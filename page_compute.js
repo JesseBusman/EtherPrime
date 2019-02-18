@@ -15,7 +15,7 @@ async function updateComputePage()
 
 	if (firstUpdate)
 	{
-		$("computePrimesToMemorizeDisplay").innerText = $("computePrimesToMemorize").value = Math.ceil(parseInt(amountOfDefinitePrimesFound.toString(10), 10)/2);
+		$("computePrimesToMemorizeDisplay").textContent = $("computePrimesToMemorize").value = Math.ceil(parseInt(amountOfDefinitePrimesFound.toString(10), 10)/2);
 	}
 
 	firstUpdate = false;

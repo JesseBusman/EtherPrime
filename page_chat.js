@@ -95,7 +95,7 @@ async function updateChatPage()
 			chatMessageDiv.appendChild(userBoxDiv);
 			const textDiv = document.createElement("div");
 			{
-				textDiv.innerText = msgText;
+				textDiv.textContent = msgText;
 		
 				textDiv.innerHTML = textDiv.innerHTML.replace(/([0-9]+)/gi, function(match){
 					return "<a href='#search:"+match+"' class='nobtn'>"+match+"</a>";

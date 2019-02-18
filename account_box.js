@@ -58,15 +58,15 @@ async function updateAccountBoxData()
 	if (username === "") $("accountBox_username").innerHTML = "Anonymous <a href='#' onclick='setUsername();return false;' class='nobtn'>Set username</a>"
 
 	// If the user has a username, display it
-	else $("accountBox_username").innerText = username;
+	else $("accountBox_username").textContent = username;
 
-	$("accountBox_primeCount").innerText = primeCount.toString(10);
+	$("accountBox_primeCount").textContent = primeCount.toString(10);
 
 	// If the user's balance is 0, hide the Withdraw button. Otherwise, display it.
 	$("accountBox_withdrawButton").style.display = (new BN(weiBalance)).cmpn(0) === 0 ? "none" : "inline-block";
 
 	// Display and round the user's ether balance to 8 decimals
-	$("accountBox_etherBalance").innerText = (new BigNumber(web3.utils.fromWei(weiBalance))).toFixed(8) + " ETH";
+	$("accountBox_etherBalance").textContent = (new BigNumber(web3.utils.fromWei(weiBalance))).toFixed(8) + " ETH";
 }
 
 let lastAddressThat_userAccountChanged_wasCalledFor = undefined;
@@ -116,7 +116,7 @@ async function userAccountChanged()
 		const usernameTextDiv = document.createElement("div");
 		{
 			usernameTextDiv.setAttribute("id", "accountBox_textUsername");
-			usernameTextDiv.innerText = "Username:";
+			usernameTextDiv.textContent = "Username:";
 		}
 		$("accountBox").appendChild(usernameTextDiv);
 
@@ -132,7 +132,7 @@ async function userAccountChanged()
 		const etherBalanceTextDiv = document.createElement("div");
 		{
 			etherBalanceTextDiv.setAttribute("id", "accountBox_textEthInContract");
-			etherBalanceTextDiv.innerText = "Balance:";
+			etherBalanceTextDiv.textContent = "Balance:";
 		}
 		$("accountBox").appendChild(etherBalanceTextDiv);
 
@@ -152,7 +152,7 @@ async function userAccountChanged()
 				})();
 				return false;
 			});
-			withdrawButtonA.innerText = "Withdraw";
+			withdrawButtonA.textContent = "Withdraw";
 			withdrawButtonA.style.display = "none";
 		}
 		$("accountBox").appendChild(withdrawButtonA);
@@ -169,7 +169,7 @@ async function userAccountChanged()
 				if (amount === "") return;
 				callContract("depositEther", {"value": web3.utils.toWei(amount)});
 			});
-			depositButtonA.innerText = "Deposit";
+			depositButtonA.textContent = "Deposit";
 		}
 		$("accountBox").appendChild(depositButtonA);
 
@@ -184,7 +184,7 @@ async function userAccountChanged()
 		const primeTextDiv = document.createElement("div");
 		{
 			primeTextDiv.setAttribute("id", "accountBox_primesText");
-			primeTextDiv.innerText = "Primes:";
+			primeTextDiv.textContent = "Primes:";
 		}
 		$("accountBox").appendChild(primeTextDiv);
 	}

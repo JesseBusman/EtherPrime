@@ -185,14 +185,14 @@ function createTransactionRow(txhash, funcName, value, gas, gasPrice, args, isCa
 
         const cellConfirmations = document.createElement("td");
         {
-            cellConfirmations.innerText = "Loading ...";
+            cellConfirmations.textContent = "Loading ...";
         }
         row.appendChild(cellConfirmations);
 
         
         const cellResult = document.createElement("td");
         {
-            cellResult.innerText = "Loading ...";
+            cellResult.textContent = "Loading ...";
         }
         row.appendChild(cellResult);
     }
@@ -208,8 +208,8 @@ async function addUnconfirmedTransactionToTransactionPage(txhash, funcName, valu
 	
     row.setAttribute("confirmed", "no");
 
-    row.childNodes[2].innerText = "No";
-    row.childNodes[3].innerText = "Waiting...";
+    row.childNodes[2].textContent = "No";
+    row.childNodes[3].textContent = "Waiting...";
 
     const table = $("transactionsTable");
     table.insertBefore(row, table.childNodes[0]); // insert at top
@@ -292,7 +292,7 @@ async function updateTransactionsPage_transaction(txhash)
 
     if (tx.blockNumber && txIsConfirmed)
     {
-        row.childNodes[2].innerText = "Yes";
+        row.childNodes[2].textContent = "Yes";
 		row.setAttribute("confirmed", "yes");
 
 		// If the transaction reverted...
@@ -348,9 +348,9 @@ async function updateTransactionsPage_transaction(txhash)
     }
     else
     {
-        row.childNodes[2].innerText = "No";
+        row.childNodes[2].textContent = "No";
         row.setAttribute("confirmed", "no");
-        row.childNodes[3].innerText = "...";
+        row.childNodes[3].textContent = "...";
     }
 }
 

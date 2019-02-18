@@ -15,7 +15,7 @@ async function updateUserBoxUsername(userBox)
 {
     const bytes32 = await callContract("EtherPrimeChat::addressToUsername", userBox.getAttribute("address"));
     const str = bytes32_to_string(bytes32);
-    userBox.childNodes[2].innerText = str;
+    userBox.childNodes[2].textContent = str;
 }
 
 function createUserBox(address)
@@ -30,7 +30,7 @@ function createUserBox(address)
         const addressDiv = document.createElement("div");
         {
             addressDiv.classList.add("address");
-            addressDiv.innerText = address;
+            addressDiv.textContent = address;
         }
         userBox.appendChild(addressDiv);
         

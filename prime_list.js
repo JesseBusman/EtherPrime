@@ -70,7 +70,7 @@ async function updatePrimesList(primesListDiv, circumventRateLimiter=false, forc
 
 	if (forceRerender === true)
 	{
-		primesListDiv.innerText = "";
+		primesListDiv.textContent = "";
 	}
 
 
@@ -175,7 +175,7 @@ async function updatePrimesList(primesListDiv, circumventRateLimiter=false, forc
 			{
 				sortDiv.classList.add("primesListSortBar");
 				sortDiv.setAttribute("id", "sortDiv_"+randid);
-				sortDiv.innerText = "Sort: ";
+				sortDiv.textContent = "Sort: ";
 				sortDiv.innerHTML += "<input type='radio' id='sortNewestFirst_"+randid+"' name='sort_"+randid+"' onclick='updatePrimesList(\""+randid+"\", true, true);'/> <label for='sortNewestFirst_"+randid+"'>Newest first</label>";
 				sortDiv.innerHTML += "<input type='radio' id='sortOldestFirst_"+randid+"' name='sort_"+randid+"' onclick='updatePrimesList(\""+randid+"\", true, true);'/> <label for='sortOldestFirst_"+randid+"'>Oldest first</label>";
 				sortDiv.innerHTML += "<input type='radio' id='sortAscending_"  +randid+"' name='sort_"+randid+"' onclick='updatePrimesList(\""+randid+"\", true, true);' checked='checked'/> <label for='sortAscending_"+randid+"'>Ascending</label>";
@@ -269,7 +269,7 @@ async function updatePrimesList(primesListDiv, circumventRateLimiter=false, forc
 	
 	if (primes.length !== 1 && primesListDiv.getElementsByTagName("ul").length > 0)
 	{
-		primesListDiv.innerText = "";
+		primesListDiv.textContent = "";
 	}
 
 	//console.log("primes=", primes);
@@ -440,7 +440,7 @@ async function updatePrimesList(primesListDiv, circumventRateLimiter=false, forc
 
 					const placeBuyOrderButton = document.createElement("a");
 					{
-						placeBuyOrderButton.innerText = "Place buy order";
+						placeBuyOrderButton.textContent = "Place buy order";
 						placeBuyOrderButton.setAttribute("href", "#");
 					}
 					placeBuyOrderDiv.appendChild(placeBuyOrderButton);

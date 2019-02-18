@@ -45,7 +45,7 @@ async function updateSearchPage()
 		$("addressToProbablePrimesClaimedDiv_searchResult").innerHTML = addressToProbablePrimesClaimed + " probable primes claimed";
 		$("addressToProbablePrimesDisprovenByDiv_searchResult").innerHTML = addressToProbablePrimesDisprovenBy + " probable primes disproven by them";
 		$("addressToProbablePrimesDisprovenFromDiv_searchResult").innerHTML = addressToProbablePrimesDisprovenFrom + " of their probable primes were disproven";
-		$("addressToUsername_searchResult").innerText = owner + "\r\n" + bytes32_to_string(addressToUsername);
+		$("addressToUsername_searchResult").textContent = owner + "\r\n" + bytes32_to_string(addressToUsername);
 	}
 	
 	if (searchPageIsDisplayingNumber !== false)
@@ -214,7 +214,7 @@ async function updateSearchPage()
 					const acceptBuyOrderButton = document.createElement("a");
 					{
 						acceptBuyOrderButton.setAttribute("href", "#");
-						acceptBuyOrderButton.innerText = "Sell now for "+web3.utils.fromWei(bid)+" ETH";
+						acceptBuyOrderButton.textContent = "Sell now for "+web3.utils.fromWei(bid)+" ETH";
 						acceptBuyOrderButton.onclick = (function(thePrime, theBuyOrderIndex, theAmount){
 							return function(){
 								callContract("setSellPriceAndMatchRange", thePrime, theAmount, theBuyOrderIndex, theBuyOrderIndex);
@@ -230,7 +230,7 @@ async function updateSearchPage()
 					const cancelBuyOrderButton = document.createElement("a");
 					{
 						cancelBuyOrderButton.setAttribute("href", "#");
-						cancelBuyOrderButton.innerText = "Cancel buy order";
+						cancelBuyOrderButton.textContent = "Cancel buy order";
 						cancelBuyOrderButton.onclick = (function(thePrime, theBuyOrderIndex){
 							return function(){
 								callContract("tryCancelBuyOrders", [thePrime], [theBuyOrderIndex]);
@@ -243,7 +243,7 @@ async function updateSearchPage()
 					const editBuyOrderButton = document.createElement("a");
 					{
 						editBuyOrderButton.setAttribute("href", "#");
-						editBuyOrderButton.innerText = "Edit buy order";
+						editBuyOrderButton.textContent = "Edit buy order";
 						editBuyOrderButton.onclick = (function(thePrime, theBuyOrderIndex, theOldBid){
 							return function(){
 								(async function(){
@@ -279,7 +279,7 @@ async function updateSearchPage()
 						const div = document.createElement("div");
 						{
 							div.classList.add("inactiveBuyOrderText");
-							div.innerText = "Buy order inactive because you don't have enough balance.";
+							div.textContent = "Buy order inactive because you don't have enough balance.";
 						}
 						buyOrderDiv.appendChild(div);
 					}
@@ -454,7 +454,7 @@ async function searchFor(q, showPageSearch=true)
 
 				const buyOrdersTitleH3 = document.createElement("h3");
 				buyOrdersTitleH3.setAttribute("id", "searchPage_buyOrdersTitle");
-				buyOrdersTitleH3.innerText = "Buy orders";
+				buyOrdersTitleH3.textContent = "Buy orders";
 				buyOrdersTitleH3.style.textAlign = "center";
 				buyOrdersTitleH3.style.marginTop = "30px";
 				buyOrdersTitleH3.style.marginBottom = "0px";
