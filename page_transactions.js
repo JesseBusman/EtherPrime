@@ -45,6 +45,29 @@ function describeFunctionCall(funcName, value, gas, gasPrice, args, isCallToChat
 		else if (funcName === "claimProbablePrime") return "Claim the number "+args[0]+" as a probable prime";
 		else if (funcName === "setUsername") return "Set username to '"+escapeHtml(bytes32_to_string(args[0]))+"'";
 		else if (funcName === "depositEther") return "Deposit "+web3.utils.fromWei(value) + " ETH";
+		else if (funcName === "tryCancelBuyOrders")
+		{
+			const uniquePrimes = [];
+			for (let i=0; i<args[0].length; i++)
+			{
+				const prime = args[0].toString();
+				if (uniquePrimes.indexOf(prime) === -1) uniquePrimes.push(prime);
+			}
+
+			if (uniquePrimes.length === 0)
+			{
+				return "Do nothing";
+			}
+			else if (uniquePrimes.length === 1)
+			{
+				if (args[0].length === 1) return "Try to cancel buy order on prime "+linkPrime(uniquePrimes[0]);
+				else return "Try to cancel "+args[0].length+" buy orders on prime "+linkPrime(uniquePrimes[0]);
+			}
+			else
+			{
+				return "Try to cancel buy orders on primes: "+uniquePrimes.map(linkPrime).join(", ");
+			}
+		}
 		else if (funcName === "withdrawEther") return "Withdraw "+web3.utils.fromWei(args[0]) + " ETH";
 		else if (funcName === "sendChatMessage") return "Send a chat message:<br/><i>"+escapeHtml(args[0]) + "</i>";
 		else if (funcName === "setSellPrice") return "Create a sell order of "+web3.utils.fromWei(args[1]) + " ETH for prime "+linkPrime(args[0]);
@@ -143,7 +166,14 @@ function createTransactionRow(txhash, funcName, value, gas, gasPrice, args, isCa
     {
         const cellTxHash = document.createElement("td");
         {
-            cellTxHash.innerHTML = txhash + " <a href='https://ropsten.etherscan.io/tx/"+txhash+"' class='nobtn' target='_black'>Etherscan</a>";
+			if (window.location.toString().indexOf("etherprimedev") === -1)
+			{
+				cellTxHash.innerHTML = txhash + " <a href='https://etherscan.io/tx/"+txhash+"' class='nobtn' target='_black'>Etherscan</a>";
+			}
+			else
+			{
+				cellTxHash.innerHTML = txhash + " <a href='https://ropsten.etherscan.io/tx/"+txhash+"' class='nobtn' target='_black'>Etherscan</a>";
+			}
         }
         row.appendChild(cellTxHash);
 
