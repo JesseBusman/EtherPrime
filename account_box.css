@@ -1,0 +1,173 @@
+
+#accountBox
+{
+    position: absolute;
+    top: 10px;
+    left: 10px;
+}
+
+#accountBox > canvas
+{
+    position: absolute;
+    top: -4px;
+	left: -3px;
+}
+
+#accountBox > canvas:hover
+{
+    cursor: pointer;
+}
+
+#accountBox > div:nth-child(2) /* Address */
+{
+    font-size: 10pt;
+    position: absolute;
+
+    min-width: 150px;
+    width: 150px;
+
+    top: -5px;
+	left: 60px;
+	display: block;
+}
+
+#accountBox > #accountBox_textUsername
+{
+    font-size: 10pt;
+    position: absolute;
+
+    top: 40px;
+    left: 55px;
+
+    width: 70px;
+    min-width: 70px;
+    display: inline-block;
+
+    text-align: right;
+}
+
+#accountBox > div:nth-child(3) /* Username */
+{
+    font-size: 10pt;
+    position: absolute;
+
+    min-width: 170px;
+    width: 170px;
+
+    top: 40px;
+    left: 130px;
+}
+#accountBox > #accountBox_etherBalance /* ETH balance */
+{
+    font-size: 10pt;
+    position: absolute;
+
+    top: 10px;
+    left: 130px;
+
+    width: 120px;
+    min-width: 120px;
+    display: inline-block;
+
+    text-align: left;
+}
+
+#accountBox > #accountBox_textEthInContract
+{
+    font-size: 10pt;
+    position: absolute;
+
+    top: 10px;
+    left: 55px;
+
+    width: 70px;
+    min-width: 70px;
+    display: inline-block;
+
+    text-align: right;
+}
+
+#accountBox > #accountBox_primeCount /* Prime count*/
+{
+    font-size: 10pt;
+    position: absolute;
+
+    top: 25px;
+    left: 130px;
+
+    width: 60px;
+    min-width: 60px;
+    display: inline-block;
+
+    text-align: left;
+}
+#accountBox_primesText
+{
+    font-size: 10pt;
+    position: absolute;
+
+    top: 25px;
+    left: 55px;
+
+    width: 70px;
+    min-width: 70px;
+    display: inline-block;
+
+    text-align: right;
+}
+
+
+
+
+#accountBox_withdrawButton
+{
+    font-size: 10pt;
+
+    position: absolute;
+    top: 10px;
+    left: 300px;
+
+    display: inline-block;
+
+    text-align: left;
+    text-decoration: underline;
+    cursor: default;
+}
+
+#accountBox_depositButton
+{
+    font-size: 10pt;
+
+    position: absolute;
+    top: 10px;
+    left: 250px;
+
+    display: inline-block;
+
+    text-align: left;
+    text-decoration: underline;
+    cursor: default;
+}
+#accountBox_withdrawButton:hover, #accountBox_depositButton:hover
+{
+    color: red;
+    cursor: pointer;
+}
+
+
+
+/*
+#accountBox > div:nth-child(5)::after
+{
+    content: "primes";
+
+    position: absolute;
+    left: 50px;
+
+    width: 100px;
+    min-width: 100px;
+    display: inline-block;
+    margin-left: 20px;
+
+    text-align: left;
+}*/

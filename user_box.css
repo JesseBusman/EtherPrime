@@ -1,0 +1,53 @@
+
+
+
+
+.userBox
+{
+    min-width: 350px;
+    width: 350px;
+	max-width: 350px;
+	min-height: 40px;
+	height: 40px;
+	max-height: 40px;
+    text-align: left;
+    position: relative;
+    transition: background-color 0.3s;
+    background-color: rgba(255, 255, 255, 0.0);
+}
+.userBox:hover
+{
+    cursor: pointer;
+    background-color: var(--light-color);
+}
+.userBox > canvas
+{
+	position: absolute;
+    top: 0;
+    left: 0;
+}
+.userBox > div.address
+{
+    position: absolute;
+    display: inline-block;
+    top: -2px;
+	left: 50px;
+	width: 310px; min-width: 310px; max-width: 310px;
+    font-size: 9pt;
+	height: 20px; min-height: 20px; max-height: 20px; line-height: 20px;
+	padding: 0;
+	margin: 0;
+	outline: 0;
+	border: 0;
+}
+.userBox > div.username
+{
+    position: absolute;
+    display: inline-block;
+    top: 18px;
+    left: 50px;
+	width: 310px;
+	min-width: 310px;
+	max-width: 310px;
+	height: 20px; min-height: 20px; max-height: 20px; line-height: 20px;
+}

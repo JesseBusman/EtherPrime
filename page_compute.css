@@ -1,0 +1,44 @@
+
+#computeGasPriceDisplay, #computeGasLimitDisplay, #computePrimesToMemorizeDisplay, #computeEtherCost
+{
+    text-align: right;
+    width: 60px;
+    min-width: 60px;
+    max-width: 60px;
+    display: inline-block;
+    margin-right: 10px;
+}
+
+#pageComputeTable1
+{
+    float: right;
+    margin-right: 20px;
+}
+
+#pageComputeTable1 td:last-child
+{
+	min-width: 90px;
+	padding-left: 10px;
+	text-align: right;
+	font-size: 20pt;
+}
+
+#pageComputeTable2
+{
+    float: left;
+}
+
+#pageComputeTable1 td, #pageComputeTable2 td
+{
+	min-height: 30px;
+	height: 30px;
+	max-height: 30px;
+}
+
+
+#btnCompute
+{
+	font-size: 20pt;
+	padding: 15px;
+}
+

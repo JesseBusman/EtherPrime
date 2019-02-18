@@ -1,0 +1,24 @@
+
+#rankingTable td
+{
+    text-align: center;
+}
+
+#rankingTable td:first-child
+{
+    line-height: 40px;
+    vertical-align: middle;
+}
+
+#pageRanking th:not(:first-child)
+{
+	color: var(--medium-text-color);
+	transition: color 0.3s;
+}
+
+#pageRanking th:not(:first-child):hover
+{
+	cursor: pointer;
+	color: #550000;
+}
+

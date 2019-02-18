@@ -1,0 +1,150 @@
+
+
+.primesList > div
+{
+	border-top: 1px solid white;
+	margin-bottom: 0px;
+	height: 40px;
+	line-height: 40px;
+	padding-top: 5px;
+	padding-bottom: 8px;
+	font-size: 12pt;
+	position: relative;
+}
+.primesList > div > div
+{
+    display: inline-block;
+    height: 40px;
+    min-height: 40px;
+    max-height: 40px;
+	vertical-align: middle;
+}
+.primesList > div > div:nth-child(1) /* prime number */
+{
+	position: relative;
+	top: -4px;
+	min-width: 100px;
+	max-width: 100px;
+	width: 100px;
+    margin-right: 10px;
+
+	word-wrap: break-word;
+
+	text-align: right;
+    font-size: 20pt;
+    padding-right: 10px;
+    background-color: rgba(255, 255, 255, 0.0);
+	transition: background-color 0.3s;
+	z-index: 10;
+	height: 50px; min-height: 50px; max-height: 50px;
+}
+.primesList > div > div:nth-child(1):hover /* prime number */
+{
+    cursor: pointer;
+	background-color: rgba(255, 255, 255, 0.1);
+	/*background-color: var(--light-color);*/
+}
+
+.primesList > div > div:nth-child(2) /* user box */
+{
+	position: relative;
+	top: -3px;
+}
+
+
+
+.primesList .primeIsProbableDiv
+{
+	position: absolute;
+	left: 20px;
+	top: 35px;
+	font-size: 9pt;
+	height: 12pt;
+	max-width: 12pt;
+	min-height: 12pt;
+	line-height: 12pt;
+	width: 80px;
+	min-width: 80px;
+	max-width: 80px;
+	text-align: right;
+	z-index: 5;
+}
+.primesList .primeIsProbableDiv:hover
+{
+	cursor: default;
+}
+
+
+
+.primesList > div > a
+{
+	position: relative;
+	top: -10px;
+}
+
+.primesList > div > .buyNowDiv, .primesList > div > .placeBuyOrderDiv
+{
+	display: inline-block;
+	/*min-width: 100px;*/
+	position: relative;
+}
+.primesList > div > .buyNowDiv a, .primesList > div > .placeBuyOrderDiv a
+{
+	position: relative;
+	top: -10px;
+	left: 0;
+}
+.primesList > div > .buyNowDiv input[type=checkbox], .primesList > div > .placeBuyOrderDiv input[type=checkbox]
+{
+	position: absolute;
+	top: 25px;
+	left: 0;
+}
+.primesList > div > .buyNowDiv label, .primesList > div > .placeBuyOrderDiv label
+{
+	position: absolute;
+	top: 27px;
+	left: 20px;
+	line-height: 12pt;
+	font-size: 9.5pt;
+}
+
+.primesListSortBar
+{
+	margin-bottom: 15px;
+	margin-left: 15px;
+	font-size: 11pt;
+}
+
+.primesListSortBar input[type=radio]
+{
+	margin-left: 20px;
+	position: relative;
+	top: 1px;
+}
+
+.primesListSortBar label
+{
+	margin-right: 15px;
+}
+
+
+.primesList a:not(.nobtn), #searchResults_number_buyOrders a:not(.nobtn)
+{
+	/*border-radius: 6px !important;*/
+	padding: 4px !important;
+	font-size: 10pt !important;
+	line-height: 12pt !important;
+	margin-right: 5px !important;
+}
+
+
+#allPrimesList[listiscomplete=no]::after, #yourPrimesList[loading=yes]::after
+{
+	content: "Loading...";
+	font-size: 18pt;
+	position: relative;
+	left: 140px;
+}
+
+

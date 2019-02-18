@@ -1,0 +1,107 @@
+
+
+
+#searchBox
+{
+	font-size: 16pt;
+	width: calc(100% - var(--page-padding) * 2);
+	color:black;
+	padding: 5px;
+}
+
+
+
+
+
+
+
+
+#searchResults
+{
+    border-top: 1px solid white;
+    margin-top: 25px;
+    font-size: 16pt;
+    padding-top: 25px;
+}
+
+#searchResults > ul
+{
+    float: left;
+    font-size: 14pt;
+}
+
+#searchResults > .address
+{
+    float: right;
+    font-size: 15pt;
+    width: 570px;
+    position: relative;
+}
+
+#searchResults > .address > div
+{
+    display: inline-block;
+    position: absolute;
+    top: 0;
+    left: 90px;
+}
+
+
+#searchResults > .address > canvas
+{
+    display: inline-block;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+}
+
+#searchResults_number_properties_list li
+{
+	min-height: 30px;
+	vertical-align: bottom;
+	line-height: 30px;
+}
+
+#searchResults_number_buyOrders
+{
+	margin-top: 5px;
+}
+
+#searchResults_number_buyOrders > div
+{
+	width: calc(100% - 20px);
+	height: 40px; min-height: 40px; max-height: 40px;
+	background-color: var(--light-color);
+	border-radius: 10px;
+	margin-top: 10px;
+	position: relative;
+	margin-right: 30px;
+	padding: 8px 10px 12px 10px;
+	line-height: 40px;
+	vertical-align: middle;
+}
+
+#searchResults_number_buyOrders > div > *
+{
+	display: inline-block;
+	vertical-align: middle;
+	margin-right: 8px;
+}
+
+#searchResults_number_buyOrders > div > .bidAmount
+{
+	min-width: 150px;
+	max-width: 150px;
+	text-align: right;
+	font-size: 15pt;
+}
+
+#searchResults_number_buyOrders > div > .inactiveBuyOrderText
+{
+	max-width: 240px;
+	color: #770000;
+	font-size: 9pt; line-height: 9pt;
+}
+
+
+

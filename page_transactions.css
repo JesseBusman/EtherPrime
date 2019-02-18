@@ -1,0 +1,90 @@
+
+
+
+#pageTransactions table
+{
+	border-collapse: separate; 
+	border-spacing: 0 15px;
+}
+
+#pageTransactions th
+{
+	color: var(--medium-text-color);
+}
+
+tbody#transactionsTable tr
+{
+	background-color: var(--light-color);
+}
+tbody#transactionsTable td
+{
+	padding: 10px;
+	word-wrap: break-word;
+}
+tbody#transactionsTable td:last-child
+{
+	padding-left: 0px !important;
+	padding-right: 5px !important;
+}
+tbody#transactionsTable td:last-child ul
+{
+	padding: 0px 0px 0px 23px;
+	border: 0;
+	margin: 0;
+	outline: 0;
+	font-size: 11pt;
+}
+
+
+#transactionsTable
+{
+	font-size: 11pt;
+}
+
+#transactionsTable td:first-child, #pageTransactions th:first-child /* txhash */
+{
+    width: 250px;
+    min-width: 250px;
+    max-width: 250px;
+}
+#transactionsTable td:first-child
+{
+    word-wrap: break-word;
+    font-size: 10pt;
+}
+
+#transactionsTable td:nth-child(2), #pageTransactions th:nth-child(2) /* action */
+{
+    width: 300px;
+    min-width: 300px;
+    max-width: 300px;
+}
+
+#transactionsTable td:nth-child(3), #pageTransactions th:nth-child(3) /* confirmation */
+{
+    width: 90px;
+    min-width: 90px;
+    max-width: 90px;
+}
+
+#transactionsTable td:nth-child(4), #pageTransactions th:nth-child(4) /* result */
+{
+    width: 300px;
+    min-width: 300px;
+	max-width: 300px;
+}
+
+tbody#transactionsTable td:nth-child(4)
+{
+	max-height: 150px;
+}
+
+tbody#transactionsTable .transactionResultsList
+{
+	max-height: 150px;
+	overflow-y: auto;
+}
+
+
+
+
