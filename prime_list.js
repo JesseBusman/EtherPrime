@@ -60,6 +60,7 @@ async function updatePrimesList(primesListDiv, circumventRateLimiter=false, forc
 	}
 
 
+
 	if (updatePrimesList__randid_to_lastCallTime.hasOwnProperty(randid) && circumventRateLimiter === false)
 	{
 		if (updatePrimesList__randid_to_lastCallTime[randid] + 1000 > Date.now()) return;
@@ -73,12 +74,21 @@ async function updatePrimesList(primesListDiv, circumventRateLimiter=false, forc
 	}
 
 
+
+	if (primesListDiv.childNodes.length === 0)
+	{
+		primesListDiv.setAttribute("loading", "yes");
+	}
+
+
 	console.log("Primes list is updating...");
 
 
 	const sourceType = primesListDiv.getAttribute("sourceType");
 
 	let primes;
+	let shouldRemovePrimesNotInPrimesArray;
+	let appendPrimesAtStart;
 	//let primesDefinite = null;
 	let owners = null;
 	if (sourceType === "allDefinitePrimes")
@@ -92,25 +102,69 @@ async function updatePrimesList(primesListDiv, circumventRateLimiter=false, forc
 
 		if (primes.length === amountOfDefinitePrimesFound) primesListDiv.setAttribute("listIsComplete", "yes");
 		else primesListDiv.setAttribute("listIsComplete", "no");
+		
+		// Primes can never disappear from the "all definite primes" list. They can only be added
+		shouldRemovePrimesNotInPrimesArray = false;
+		appendPrimesAtStart = false; // Ascending order
 	}
 	else if (sourceType === "recentDefinitePrimes")
 	{
-		const amountAlreadyDisplayed = primesListDiv.childElementCount;
 		const amountOfDefinitePrimesFound = parseInt(await callContract("amountOfDefinitePrimesFound"));
-		const startIndex = Math.max(amountOfDefinitePrimesFound-amountAlreadyDisplayed-25, 0);
-		const amount = amountOfDefinitePrimesFound - startIndex;
+		
+		if (!primesListDiv.hasAttribute("previousAmountFound"))
+		{
+			primesListDiv.setAttribute("previousAmountFound", "0");
+		}
+		
+		const amountAlreadyDisplayed = primesListDiv.childElementCount;
+		
+		let amount, startIndex;
+		
+		// If there are newer definite primes not in the list,
+		// add most recent batch of primes to the start
+		if (parseInt(primesListDiv.getAttribute("previousAmountFound")) < amountOfDefinitePrimesFound)
+		{
+			startIndex = parseInt(primesListDiv.getAttribute("previousAmountFound"));
+			amount = amountOfDefinitePrimesFound - startIndex;
+
+			if (amount > 250)
+			{
+				const overflow = amount - 250;
+				startIndex += overflow;
+				amount -= overflow;
+			}
+			
+			shouldRemovePrimesNotInPrimesArray = false;
+			appendPrimesAtStart = true;
+		}
+		
+		// Otherwise, add older primes to the end until there are >= 250 displayed
+		else
+		{
+			startIndex = Math.max(amountOfDefinitePrimesFound - amountAlreadyDisplayed - 25, 0);
+			amount = Math.max(amountOfDefinitePrimesFound - startIndex, 0);
+
+			if (amountAlreadyDisplayed + amount > 250)
+			{
+				amount = 250 - amountAlreadyDisplayed;
+				amount = Math.max(0, amount);
+			}
+
+			
+			shouldRemovePrimesNotInPrimesArray = false;
+			appendPrimesAtStart = false;
+		}
+		
+		primesListDiv.setAttribute("previousAmountFound", ""+amountOfDefinitePrimesFound);
+		
 		primes = await getDefinitePrimesRange(
 			startIndex,
 			amount
 		);
-
-		//primesDefinite = [];
-		//for (let i=0; i<primes.length; i++) primesDefinite.push(true);
-
+		
 		primes = primes.reverse();
-
-		if (primes.length === amountOfDefinitePrimesFound) primesListDiv.setAttribute("listIsComplete", "yes");
-		else primesListDiv.setAttribute("listIsComplete", "no");
+		
+		primesListDiv.setAttribute("listIsComplete", ((amountAlreadyDisplayed + amount) >= amountOfDefinitePrimesFound) ? "yes" : "no");
 	}
 	else if (sourceType === "primesOfOwner")
 	{
@@ -168,18 +222,25 @@ async function updatePrimesList(primesListDiv, circumventRateLimiter=false, forc
 
 		owners = [];
 		for (let i=0; i<primes.length; i++) owners.push(owner);
+		
+		if ($("sortNewestFirst_"+randid).checked) { appendPrimesAtStart = true; }
+		else if ($("sortDescending_"+randid).checked) { appendPrimesAtStart = true; }
+		else { appendPrimesAtStart = false; }
+		shouldRemovePrimesNotInPrimesArray = true;
 	}
 	else if (sourceType === "singlePrime")
 	{
 		primes = [new BN(primesListDiv.getAttribute("prime"))];
-
+		
+		appendPrimesAtStart = false;
+		shouldRemovePrimesNotInPrimesArray = false;
 	}
 	else
 	{
 		throw "Unknown primesList sourceType: "+sourceType;
 	}
 
-	if (primes.length === 0)
+	if (primes.length === 0 && shouldRemovePrimesNotInPrimesArray)
 	{
 		if (sourceType === "primesOfOwner")
 		{
@@ -204,6 +265,11 @@ async function updatePrimesList(primesListDiv, circumventRateLimiter=false, forc
 			primesListDiv.innerHTML = "This list is empty :(";
 		}
 		return;
+	}
+	
+	if (primes.length !== 1 && primesListDiv.getElementsByTagName("ul").length > 0)
+	{
+		primesListDiv.innerText = "";
 	}
 
 	//console.log("primes=", primes);
@@ -277,6 +343,8 @@ async function updatePrimesList(primesListDiv, circumventRateLimiter=false, forc
 	//isPrimeBoolys = isPrimeBoolys.map((a) => parseInt(a.toString()));
 
 	const rowsUpdated = [];
+	
+	let insertBeforeThisRow = null;
 
 	for (let i=0; i<primes.length; i++)
 	{
@@ -448,7 +516,13 @@ async function updatePrimesList(primesListDiv, circumventRateLimiter=false, forc
 				})(primes[i]);
 				primeField.onclick = displayPrimeFunc;
 			}
-			primesListDiv.appendChild(row);
+			
+			if (appendPrimesAtStart)
+			{
+				if (insertBeforeThisRow === null) insertBeforeThisRow = primesListDiv.childNodes[0];
+				primesListDiv.insertBefore(row, insertBeforeThisRow);
+			}
+			else primesListDiv.appendChild(row);
 		}
 
 
@@ -595,14 +669,21 @@ async function updatePrimesList(primesListDiv, circumventRateLimiter=false, forc
 			}
 			else
 			{
-				let highestBidIndexSoFar = buyOrdersOfUserOnPrime[i][0][0];
-				let highestBidSoFar = buyOrdersOfUserOnPrime[i][1][0];
+				const allBuyOrderIndices = [];
+
+				let highestBidIndexSoFar = new BN(buyOrdersOfUserOnPrime[i][0][0]);
+				let highestBidSoFar = new BN(buyOrdersOfUserOnPrime[i][1][0]);
+				allBuyOrderIndices.push(highestBidIndexSoFar);
 				for (let j=1; j<buyOrdersOfUserOnPrime[i][0].length; j++)
 				{
-					const bid = buyOrdersOfUserOnPrime[i][1][j];
+					const bid = new BN(buyOrdersOfUserOnPrime[i][1][j]);
+					const bidIndex = new BN(buyOrdersOfUserOnPrime[i][0][j]);
+					allBuyOrderIndices.push(bidIndex);
+					//console.log("highestBidSoFar="+highestBidSoFar+" bid="+bid);
 					if (bid.cmp(highestBidSoFar) === 1)
 					{
-						highestBidIndexSoFar = buyOrdersOfUserOnPrime[i][0][j];
+						//console.log("new highest bid!");
+						highestBidIndexSoFar = bidIndex;
 						highestBidSoFar = bid;
 					}
 				}
@@ -611,14 +692,21 @@ async function updatePrimesList(primesListDiv, circumventRateLimiter=false, forc
 				cancelBuyOrderButton.style.display = "inline-block";
 				editBuyOrderButton.style.display = "inline-block";
 
-				cancelBuyOrderButton.innerHTML = "Cancel buy order of "+fromWei_short(highestBidSoFar);
+				if (allBuyOrderIndices.length === 1)
+				{
+					cancelBuyOrderButton.innerHTML = "Cancel buy order of "+fromWei_short(highestBidSoFar);
+				}
+				else
+				{
+					cancelBuyOrderButton.innerHTML = "Cancel buy orders (up to "+fromWei_short(highestBidSoFar)+")";
+				}
 
-				cancelBuyOrderButton.onclick = (function(thePrime, theBuyOrderIndex){
+				cancelBuyOrderButton.onclick = (function(thePrime, theBuyOrderIndex, theAllBuyOrderIndices){
 					return function(){
-						callContract("cancelBuyOrders", [thePrime], [theBuyOrderIndex]);
+						callContract("tryCancelBuyOrders", Array.from({length: theAllBuyOrderIndices.length}).map(x => thePrime), theAllBuyOrderIndices);
 						return false;
 					};
-				})(primes[i], highestBidIndexSoFar);
+				})(primes[i], highestBidIndexSoFar, allBuyOrderIndices);
 
 				editBuyOrderButton.onclick = (function(thePrime, theBuyOrderIndex, theOldBid){
 					return function(){
@@ -824,20 +912,26 @@ async function updatePrimesList(primesListDiv, circumventRateLimiter=false, forc
 		rowsUpdated.push(row);
 	}
 
-	// Remove primes that are in the list, but not in the primes array that this function received.
-	for (let i=0; i<primesListDiv.childNodes.length; i++)
+	if (shouldRemovePrimesNotInPrimesArray)
 	{
-		if (rowsUpdated.indexOf(primesListDiv.childNodes[i]) === -1)
+		// Remove primes that are in the list, but not in the primes array that this function received.
+		for (let i=0; i<primesListDiv.childNodes.length; i++)
 		{
-			primesListDiv.removeChild(primesListDiv.childNodes[i]);
-			i--;
+			if (rowsUpdated.indexOf(primesListDiv.childNodes[i]) === -1)
+			{
+				primesListDiv.removeChild(primesListDiv.childNodes[i]);
+				i--;
+			}
 		}
 	}
-
+	
+	// If the list has not been completely loaded yet, trigger another update
 	if (primesListDiv.hasAttribute("listIsComplete") &&
 		primesListDiv.getAttribute("listIsComplete") === "no")
 	{
 		setTimeout(updatePrimesList, 50, primesListDiv, true);
 	}
+
+	primesListDiv.setAttribute("loading", "no");
 }
 
