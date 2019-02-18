@@ -186,7 +186,13 @@ async function updatePrimesList(primesListDiv, circumventRateLimiter=false, forc
 			const owner = primesListDiv.getAttribute("owner");
 			if (owner === userAccount || owner === "user")
 			{
-				primesListDiv.innerHTML = "You don't own any primes :(";
+				primesListDiv.innerHTML =
+					"<br/><br/>You don't own any primes :(<br/><br/><br/>"+
+					"There are two ways to get primes:<br/>"+
+					"<ol>"+
+						"<li>Burn some gas by pressing the big compute button on the Compute tab. This will advance the prime number generator. You will receive all primes found in this process.</li>"+
+						"<li>Enter a prime number on the Search tab and claim it as a probable prime. This mode of prime ownership has a lower priority than the main prime generator. If the prime generator ever reaches your probable prime, you will lose it. You should therefore only claim very large primes as probable primes.</li>"+
+					"</ol>";
 			}
 			else
 			{
