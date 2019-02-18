@@ -2,6 +2,8 @@
 
 const processedEvents = {};
 
+let highestEventBlockNumberSeen = 0;
+
 // If we receive an event from Web3:
 // - Interpret it,
 // - Invalidate the cached values the transaction may have affected
@@ -12,12 +14,18 @@ function receivedEvent(result)
 		const eventID = result.id + "_"+result.logIndex+"_"+result.blockNumber+"_"+result.signature;
 		if (processedEvents.hasOwnProperty(eventID) || localStorage.getItem(eventID) !== null)
 		{
-			console.log("Ignoring a "+result.event+" event because we've already processed it.");
+			//console.log("Ignoring a "+result.event+" event because we've already processed it.");
 			return;
 		}
         processedEvents[eventID] = true;
         localStorage.setItem(eventID, "");
-	}
+    }
+    
+    if (result.blockNumber > highestEventBlockNumberSeen)
+    {
+        highestEventBlockNumberSeen = result.blockNumber;
+        localStorage.setItem("lastEventsBlockProcessed", ""+highestEventBlockNumberSeen);
+    }
 
 	if (result.event === "EtherDeposited")
 	{
@@ -302,6 +310,30 @@ function receivedEvent(result)
 	{
 		throw "receivedEvent() unknown event type: "+result.event;
 	}
+}
+
+function processMissedEvents()
+{
+    let lastEventsBlockProcessed = localStorage.getItem("lastEventsBlockProcessed");
+    if (lastEventsBlockProcessed === null)
+    {
+        return;
+    }
+    else
+    {
+        lastEventsBlockProcessed = parseInt(lastEventsBlockProcessed);
+        etherPrime.getPastEvents("allEvents", {"fromBlock": lastEventsBlockProcessed}, function(err, result){
+            if (err !== null)
+            {
+                console.error("Error in getPastEvents:");
+                console.error(err);
+                return;
+            }
+
+            console.log("Processing a missed event...");
+            receivedEvent(result);
+        });
+    }
 }
 
 function startListeningEvents()
