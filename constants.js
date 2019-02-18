@@ -29,9 +29,6 @@ const ETHER_PRIME_CHAT_ADDRESS =
 	? "" // Mainnet contract address
 	: "0x9f3a0c391e3429bccb1ac9caf0385212cf4935f0"; // Ropsten testnet contract address
 
-// TODO:
-// When page loads, use the missed events to invalidate the cache.
-// That way we can make a lot more cached values persist across page reloads.
 
 const FUNCTION_TO_CACHE_SETTINGS = {
 	// Never invalidated
@@ -77,11 +74,11 @@ const FUNCTION_TO_CACHE_SETTINGS = {
 	"ownerOf": [{"cacheTimeout": 60, "persistAcrossPageReloads": false}],
 	
 	// Invalidated by events: DefinitePrimeDiscovered
-	"amountOfDefinitePrimesFound": [{"cacheTimeout": 30, "persistAcrossPageReloads": false}],
-	"largestDefinitePrimeFound": [{"cacheTimeout": 30, "persistAcrossPageReloads": false}],
+	"amountOfDefinitePrimesFound": [{"cacheTimeout": 360, "persistAcrossPageReloads": false}],
+	"largestDefinitePrimeFound": [{"cacheTimeout": 360, "persistAcrossPageReloads": false}],
 	
 	// Invalidated by events: SellPriceSet
-	"primeToSellOrderPrice": [{"cacheTimeout": 120, "persistAcrossPageReloads": false}],
+	"primeToSellOrderPrice": [{"cacheTimeout": 360, "persistAcrossPageReloads": false}],
 
 	// Invalidated by events: BuyOrderCreated, BuyOrderDestroyed
 	"findHighestBidBuyOrder": [{"cacheTimeout": 360, "persistAcrossPageReloads": false}],
@@ -118,8 +115,8 @@ const FUNCTION_TO_CACHE_SETTINGS = {
 	],
 
 	// Invalidated by events: DefinitePrimeDiscovered
-	"numberBeingTested": [{"cacheTimeout": 5, "persistAcrossPageReloads": false}],
-	"divisorIndexBeingTested": [{"cacheTimeout": 5, "persistAcrossPageReloads": false}],
+	"numberBeingTested": [{"cacheTimeout": 360, "persistAcrossPageReloads": false}],
+	"divisorIndexBeingTested": [{"cacheTimeout": 360, "persistAcrossPageReloads": false}],
 
 	// Invalidated by events: EtherDeposited, EtherWithdrawn, PrimeTraded
 	"addressToEtherBalance": [{"cacheTimeout": 360, "persistAcrossPageReloads": false}],
