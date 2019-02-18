@@ -81,7 +81,7 @@ async function updatePrimesList(primesListDiv, circumventRateLimiter=false, forc
 	}
 
 
-	console.log("Primes list is updating...");
+	//console.log("Primes list is updating...");
 
 
 	const sourceType = primesListDiv.getAttribute("sourceType");
@@ -164,7 +164,7 @@ async function updatePrimesList(primesListDiv, circumventRateLimiter=false, forc
 		
 		primes = primes.reverse();
 		
-		primesListDiv.setAttribute("listIsComplete", ((amountAlreadyDisplayed + amount) >= amountOfDefinitePrimesFound) ? "yes" : "no");
+		primesListDiv.setAttribute("listIsComplete", ((amountAlreadyDisplayed + amount) >= 250) ? "yes" : "no");
 	}
 	else if (sourceType === "primesOfOwner")
 	{
@@ -929,6 +929,7 @@ async function updatePrimesList(primesListDiv, circumventRateLimiter=false, forc
 	if (primesListDiv.hasAttribute("listIsComplete") &&
 		primesListDiv.getAttribute("listIsComplete") === "no")
 	{
+		console.log("Primes list "+primesListDiv.getAttribute("id")+" is incomplete! Triggering another update...");
 		setTimeout(updatePrimesList, 50, primesListDiv, true);
 	}
 
