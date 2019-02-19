@@ -181,25 +181,40 @@ async function updateTitleStatistics()
 
 
 //////////////////////////////////////////////////////////////////
-// Everything below this line is fancy useless graphics nonsense
+// All things below this line are fancy useless graphical nonsensical background things
+
+$("title").addEventListener("click", function(e){
+	const amount = 5+Math.floor(Math.random()*5);
+	console.log("creating "+amount+" flying primes...");
+	for (let i=0; i<amount; i++)
+	{
+		createBackgroundFlyingPrime(null, true);
+	}
+});
 
 const flyingPrimes = [];
 
-function createBackgroundFlyingPrime()
+function createBackgroundFlyingPrime(prime=null, foreground=false)
 {
-	const startX = (Math.random() < 0.5) ? -200 : ((document.documentElement.clientWidth || 2000) + 200);
-	const startY = Math.floor(Math.random() * 1000);
-	const startVx = (startX < 0) ? (Math.random() * 5) : (-Math.random() * 5);
-	const startVy = -1.0 + (Math.random() * 2.0);
+	if (flyingPrimes.length > 30) return;
+
+	if (prime === null) prime = Math.floor(Math.random()*1000).toString();
+
+	const startX = (Math.random() < 0.5) ? -50 : ((document.documentElement.clientWidth || 2000) + 50);
+	const startY = 100+Math.floor(Math.random() * ((document.documentElement.clientHeight || 1000)-200));
+	const startVx = (startX < 0) ? (1.5+Math.random() * 5) : (-1.5-Math.random() * 5);
+	const startVy = -1.5 + (Math.random() * 3.0);
+	const startVr = Math.random()*4;
 	const div = document.createElement("div");
 	{
 		div.classList.add("flyingPrime");
-		div.textContent = Math.floor(Math.random()*1000).toString();
+		div.textContent = prime.toString();
 		div.style.position = "fixed";
-		div.style.zIndex = -1000;
+		div.style.zIndex = foreground ? 100 : 0;
+		div.style.fontSize = (10+Math.floor(Math.random()*14))+"pt";
 	}
 	document.body.appendChild(div);
-	flyingPrimes.push({"div": div, "x": startX, "y": startY, "vx": startVx, "vy": startVy});
+	flyingPrimes.push({"div": div, "x": startX, "y": startY, "r": 0, "vx": startVx, "vy": startVy, "vr": startVr});
 }
 
 function flyingPrimePhysics(){
@@ -209,17 +224,22 @@ function flyingPrimePhysics(){
 		if (fp.x < -300 || fp.x > ((document.documentElement.clientWidth || 2000) + 300) ||
 			fp.y < -300 || fp.y > ((document.documentElement.clientHeight || 1500) + 300))
 		{
+			document.body.removeChild(fp.div);
 			flyingPrimes.splice(i, 1);
 			i--;
 			continue;
 		}
 		
-		fp.x += fp.vx;
-		fp.y += fp.vy;
+		fp.x += fp.vx*2;
+		fp.y += fp.vy*2;
+		fp.r += fp.vr*2;
 		
-		fp.div.style.top  = fp.y;
-		fp.div.style.left = fp.x;
+		fp.div.style.top  = Math.floor(fp.y)+"px";
+		fp.div.style.left = Math.floor(fp.x)+"px";
+		fp.div.style.transform = "rotate("+Math.floor(((fp.r%350)+360)%360)+"deg)";
+
+		console.log("Flying prime is ", fp.x, fp.y, fp.div);
 	}
-	setTimeout(flyingPrimePhysics, 25);
+	setTimeout(flyingPrimePhysics, 50);
 }
 flyingPrimePhysics();
