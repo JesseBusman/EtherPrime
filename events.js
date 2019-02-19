@@ -81,6 +81,8 @@ function receivedEvent(result, isPastEvent)
 		invalidateContractCallCache("getOwner", new BN(result.returnValues.prime));
         invalidateContractCallCache("addressPrimeCount", result.returnValues.discoverer);
         invalidateContractCallCache("amountOfParticipants");
+
+        createBackgroundFlyingPrime(result.returnValues.prime.toString());
 		
         if (searchPageIsDisplayingNumber !== false &&
             (new BN(result.returnValues.prime)).cmp(new BN(searchPageIsDisplayingNumber)) === 0)
@@ -110,6 +112,8 @@ function receivedEvent(result, isPastEvent)
 		invalidateContractCallCache("getOwner", new BN(result.returnValues.prime));
         invalidateContractCallCache("addressPrimeCount", result.returnValues.discoverer);
         invalidateContractCallCache("amountOfParticipants");
+
+        createBackgroundFlyingPrime(result.returnValues.prime.toString());
 		
         if (searchPageIsDisplayingNumber !== false &&
             (new BN(result.returnValues.prime).cmp(new BN(searchPageIsDisplayingNumber)) === 0))
