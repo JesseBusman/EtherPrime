@@ -270,10 +270,15 @@ async function updateTransactionsPage_transaction(txhash)
 		}
 	}
 
-	if (txReceipt.transactionHash === "0xb8cfb122ebd3e4960c881b198be562ed324b4a07458fce4018d4b8aa1bf8d935")
+	if (txReceipt === null)
+	{
+		console.error("txReceipt of "+txhash+" is null");
+	}
+
+	/*if (txReceipt.transactionHash === "0xb8cfb122ebd3e4960c881b198be562ed324b4a07458fce4018d4b8aa1bf8d935")
 	{
 		console.log(txReceipt);
-	}
+	}*/
 	
 	const isTxToChatContract = tx.to.toLowerCase() === ETHER_PRIME_CHAT_ADDRESS.toLowerCase();
 
@@ -296,7 +301,7 @@ async function updateTransactionsPage_transaction(txhash)
 		row.setAttribute("confirmed", "yes");
 
 		// If the transaction reverted...
-		if (txReceipt.status === false)
+		if (txReceipt !== null && txReceipt.status === false)
 		{
 			row.childNodes[3].innerHTML = "<span style='color:red;'>Transaction reverted!</span>";
 		}
