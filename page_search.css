@@ -99,7 +99,7 @@
 #searchResults_number_buyOrders > div > .inactiveBuyOrderText
 {
 	max-width: 240px;
-	color: #770000;
+	color: #FF0000;
 	font-size: 9pt; line-height: 9pt;
 }
 

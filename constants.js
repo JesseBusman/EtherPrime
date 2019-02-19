@@ -22,12 +22,12 @@ const SUBTITLES =
 const ETHER_PRIME_ADDRESS =
 	(window.location.toString().indexOf("etherprimedev") === -1)
 	? "" // Mainnet contract address
-	: "0x72e6db9fdc91befb017a00aa96644d0271e65ac7"; // Ropsten testnet contract address
+	: "0x4be500ef3d235a5284b8106d6d8173f50f646d49"; // Ropsten testnet contract address
 
 const ETHER_PRIME_CHAT_ADDRESS = 
 	(window.location.toString().indexOf("etherprimedev") === -1)
 	? "" // Mainnet contract address
-	: "0x9f3a0c391e3429bccb1ac9caf0385212cf4935f0"; // Ropsten testnet contract address
+	: "0x2f5419ad66e07d099cae7283beb041bdd2a44e92"; // Ropsten testnet contract address
 
 
 const FUNCTION_TO_CACHE_SETTINGS = {
@@ -84,6 +84,7 @@ const FUNCTION_TO_CACHE_SETTINGS = {
 	"findHighestBidBuyOrder": [{"cacheTimeout": 360, "persistAcrossPageReloads": true}],
 	"findFreeBuyOrderSlot": [{"cacheTimeout": 0, "persistAcrossPageReloads": false}],
 	"countPrimeBuyOrders": [{"cacheTimeout": 360, "persistAcrossPageReloads": true}],
+	"lengthOfPrimeBuyOrdersArray": [{"cacheTimeout": 360, "persistAcrossPageReloads": true}],
 	"getPrimeBuyOrder": [{"cacheTimeout": 360, "persistAcrossPageReloads": true}],
 	"findBuyOrdersOfUserOnPrime": [{"cacheTimeout": 360, "persistAcrossPageReloads": true}],
 
@@ -463,20 +464,6 @@ const ETHER_PRIME_ABI = [
 	},
 	{
 		"constant": false,
-		"inputs": [],
-		"name": "claimMersennePrimePower",
-		"outputs": [
-			{
-				"name": "_rootProbablePrime",
-				"type": "uint256"
-			}
-		],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": false,
 		"inputs": [
 			{
 				"name": "_number",
@@ -594,6 +581,28 @@ const ETHER_PRIME_ABI = [
 		"type": "function"
 	},
 	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"name": "prime",
+				"type": "uint256"
+			},
+			{
+				"indexed": true,
+				"name": "discoverer",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"name": "definitePrimesArrayIndex",
+				"type": "uint256"
+			}
+		],
+		"name": "DefinitePrimeDiscovered",
+		"type": "event"
+	},
+	{
 		"constant": false,
 		"inputs": [],
 		"name": "depositEther",
@@ -663,6 +672,60 @@ const ETHER_PRIME_ABI = [
 		"payable": false,
 		"stateMutability": "nonpayable",
 		"type": "function"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"name": "prime",
+				"type": "uint256"
+			},
+			{
+				"indexed": true,
+				"name": "discoverer",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"name": "probablePrimesArrayIndex",
+				"type": "uint256"
+			}
+		],
+		"name": "ProbablePrimeDiscovered",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"name": "prime",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"name": "divisor",
+				"type": "uint256"
+			},
+			{
+				"indexed": true,
+				"name": "owner",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"name": "disprover",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"name": "probablePrimesArrayIndex",
+				"type": "uint256"
+			}
+		],
+		"name": "ProbablePrimeDisproven",
+		"type": "event"
 	},
 	{
 		"constant": false,
@@ -844,253 +907,6 @@ const ETHER_PRIME_ABI = [
 		"payable": false,
 		"stateMutability": "nonpayable",
 		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "_from",
-				"type": "address"
-			},
-			{
-				"name": "_to",
-				"type": "address"
-			},
-			{
-				"name": "_prime",
-				"type": "uint256"
-			}
-		],
-		"name": "transferFrom",
-		"outputs": [
-			{
-				"name": "",
-				"type": "bool"
-			}
-		],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "_primes",
-				"type": "uint256[]"
-			},
-			{
-				"name": "_buyOrderIndices",
-				"type": "uint256[]"
-			}
-		],
-		"name": "tryCancelBuyOrders",
-		"outputs": [
-			{
-				"name": "_amountCancelled",
-				"type": "uint256"
-			}
-		],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "_primes",
-				"type": "uint256[]"
-			},
-			{
-				"name": "_buyOrderIndices",
-				"type": "uint256[]"
-			},
-			{
-				"name": "_amountToWithdraw",
-				"type": "uint256"
-			}
-		],
-		"name": "tryCancelBuyOrdersAndWithdrawEther",
-		"outputs": [
-			{
-				"name": "_amountCancelled",
-				"type": "uint256"
-			}
-		],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "_mersennePrime",
-				"type": "uint256"
-			}
-		],
-		"name": "tryClaimMersennePrimePower",
-		"outputs": [
-			{
-				"name": "_success",
-				"type": "bool"
-			},
-			{
-				"name": "_rootProbablePrime",
-				"type": "uint256"
-			}
-		],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "_number",
-				"type": "uint256"
-			}
-		],
-		"name": "tryClaimProbablePrime",
-		"outputs": [
-			{
-				"name": "_success",
-				"type": "bool"
-			}
-		],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "_prime",
-				"type": "uint256"
-			},
-			{
-				"name": "_startBuyOrderIndex",
-				"type": "uint256"
-			},
-			{
-				"name": "_endBuyOrderIndex",
-				"type": "uint256"
-			}
-		],
-		"name": "tryMatchSellAndBuyOrdersRange",
-		"outputs": [
-			{
-				"name": "_sold",
-				"type": "bool"
-			}
-		],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "_amount",
-				"type": "uint256"
-			}
-		],
-		"name": "withdrawEther",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "constructor"
-	},
-	{
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "fallback"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"name": "prime",
-				"type": "uint256"
-			},
-			{
-				"indexed": true,
-				"name": "discoverer",
-				"type": "address"
-			},
-			{
-				"indexed": true,
-				"name": "definitePrimesArrayIndex",
-				"type": "uint256"
-			}
-		],
-		"name": "DefinitePrimeDiscovered",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"name": "prime",
-				"type": "uint256"
-			},
-			{
-				"indexed": true,
-				"name": "discoverer",
-				"type": "address"
-			},
-			{
-				"indexed": true,
-				"name": "probablePrimesArrayIndex",
-				"type": "uint256"
-			}
-		],
-		"name": "ProbablePrimeDiscovered",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"name": "prime",
-				"type": "uint256"
-			},
-			{
-				"indexed": false,
-				"name": "divisor",
-				"type": "uint256"
-			},
-			{
-				"indexed": true,
-				"name": "owner",
-				"type": "address"
-			},
-			{
-				"indexed": true,
-				"name": "disprover",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"name": "probablePrimesArrayIndex",
-				"type": "uint256"
-			}
-		],
-		"name": "ProbablePrimeDisproven",
-		"type": "event"
 	},
 	{
 		"anonymous": false,
@@ -1321,6 +1137,154 @@ const ETHER_PRIME_ABI = [
 		],
 		"name": "Transfer",
 		"type": "event"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_from",
+				"type": "address"
+			},
+			{
+				"name": "_to",
+				"type": "address"
+			},
+			{
+				"name": "_prime",
+				"type": "uint256"
+			}
+		],
+		"name": "transferFrom",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_primes",
+				"type": "uint256[]"
+			},
+			{
+				"name": "_buyOrderIndices",
+				"type": "uint256[]"
+			}
+		],
+		"name": "tryCancelBuyOrders",
+		"outputs": [
+			{
+				"name": "_amountCancelled",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_primes",
+				"type": "uint256[]"
+			},
+			{
+				"name": "_buyOrderIndices",
+				"type": "uint256[]"
+			},
+			{
+				"name": "_amountToWithdraw",
+				"type": "uint256"
+			}
+		],
+		"name": "tryCancelBuyOrdersAndWithdrawEther",
+		"outputs": [
+			{
+				"name": "_amountCancelled",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_number",
+				"type": "uint256"
+			}
+		],
+		"name": "tryClaimProbablePrime",
+		"outputs": [
+			{
+				"name": "_success",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_prime",
+				"type": "uint256"
+			},
+			{
+				"name": "_startBuyOrderIndex",
+				"type": "uint256"
+			},
+			{
+				"name": "_endBuyOrderIndex",
+				"type": "uint256"
+			}
+		],
+		"name": "tryMatchSellAndBuyOrdersRange",
+		"outputs": [
+			{
+				"name": "_sold",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "fallback"
+	},
+	{
+		"inputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_amount",
+				"type": "uint256"
+			}
+		],
+		"name": "withdrawEther",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
 	},
 	{
 		"constant": true,
@@ -1583,7 +1547,7 @@ const ETHER_PRIME_ABI = [
 		"name": "countPrimeBuyOrders",
 		"outputs": [
 			{
-				"name": "",
+				"name": "_amountOfBuyOrders",
 				"type": "uint256"
 			}
 		],
@@ -2200,6 +2164,25 @@ const ETHER_PRIME_ABI = [
 	},
 	{
 		"constant": true,
+		"inputs": [
+			{
+				"name": "_prime",
+				"type": "uint256"
+			}
+		],
+		"name": "lengthOfPrimeBuyOrdersArray",
+		"outputs": [
+			{
+				"name": "_lengthOfPrimeBuyOrdersArray",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
 		"inputs": [],
 		"name": "name",
 		"outputs": [
@@ -2542,6 +2525,25 @@ const ETHER_PRIME_ABI = [
 		"outputs": [],
 		"payable": false,
 		"stateMutability": "pure",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "_tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "tokenURI",
+		"outputs": [
+			{
+				"name": "_uri",
+				"type": "string"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
 		"type": "function"
 	},
 	{

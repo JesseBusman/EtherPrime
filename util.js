@@ -1,3 +1,17 @@
+function promiseNullIfRejected(promiseThatMightFail)
+{
+	return new Promise(async (resolve, reject) => {
+		try
+		{
+			const result = await promiseThatMightFail;
+			resolve(result);
+		}
+		catch (e)
+		{
+			resolve(null);
+		}
+	});
+}
 
 function string_to_bytes32(str)
 {

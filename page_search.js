@@ -70,7 +70,7 @@ async function updateSearchPage()
 			isFermatPrime,
 			isSuperPrime,
 			isFibonacciPrime,
-			buyOrderCount,
+			lengthOfPrimeBuyOrdersArray,
 			owner,
 		] = await Promise.all([
 			callContract("isBalancedPrime", qInt),
@@ -80,7 +80,7 @@ async function updateSearchPage()
 			callContract("isFermatPrime", qInt),
 			callContract("isSuperPrime", qInt),
 			callContract("isFibonacciPrime", qInt),
-			callContract("countPrimeBuyOrders", qInt),
+			callContract("lengthOfPrimeBuyOrdersArray", qInt),
 			callContract("ownerOf", qInt),
 		]);
 
@@ -90,7 +90,7 @@ async function updateSearchPage()
 			nTupleMersennePrimality.push(await callContract("isNTupleMersennePrime", qInt, n));
 		}
 
-		console.log("Prime "+qInt+" has "+buyOrderCount+" buy orders!");
+		console.log("Prime "+qInt+" has "+lengthOfPrimeBuyOrdersArray+" buy orders array length!");
 
 
 		let newHTML = "";
@@ -166,7 +166,11 @@ async function updateSearchPage()
 		for (let i=0; i<buyOrdersDiv.childNodes.length; i++)
 		{
 			console.log("buyOrdersDiv.childNodes[i]=", buyOrdersDiv.childNodes[i]);
+
+			if (buyOrdersDiv.childNodes[i].nodeType === Node.TEXT_NODE) continue;
+
 			const userBox = buyOrdersDiv.childNodes[i].childNodes[0];
+
 			const address = userBox.getAttribute("address");
 			if (!address_to_userBoxes[address]) address_to_userBoxes[address] = [];
 			address_to_userBoxes[address].push(userBox);
@@ -176,20 +180,29 @@ async function updateSearchPage()
 
 		let amountOfBuyOrdersDisplayed = 0;
 
-		if (buyOrderCount === 0)
+		if (lengthOfPrimeBuyOrdersArray === 0)
 		{
 			buyOrdersDiv.textContent = "There are currently no buy orders.";
 		}
 		else
 		{
-			buyOrdersDiv.textContent = "Loading data for "+buyOrderCount+" buy orders...";
-
+			buyOrdersDiv.textContent = "Loading data for "+lengthOfPrimeBuyOrdersArray+" buy orders...";
+			
 			let buyOrders = [];
-			for (let i=0; i<parseInt(buyOrderCount); i++)
+			for (let i=0; i<parseInt(lengthOfPrimeBuyOrdersArray); i++)
 			{
-				buyOrders.push(callContract("getPrimeBuyOrder", qInt, i));
+				buyOrders.push(promiseNullIfRejected(callContract("getPrimeBuyOrder", qInt, i)));
 			}
 			buyOrders = await Promise.all(buyOrders);
+
+			for (let i=0; i<buyOrders.length; i++)
+			{
+				if (buyOrders[i] === null)
+				{
+					buyOrders.splice(i, 1);
+					i--;
+				}
+			}
 
 			buyOrders = buyOrders.sort((a, b) => b[1].cmp(a[1]));
 
@@ -201,10 +214,11 @@ async function updateSearchPage()
 				const bid = buyOrders[i][1];
 				const bidderHasEnoughBalance = buyOrders[i][2];
 
+				console.log("Buy order:", buyOrders[i]);
+
 				if (bid.cmpn(0) === 0) continue;
 				if (!bidderHasEnoughBalance && bidder !== userAccount) continue;
 
-				console.log("Buy order:", buyOrders[i]);
 				const buyOrderDiv = document.createElement("div");
 				{
 					let userBox;
@@ -289,7 +303,7 @@ async function updateSearchPage()
 							const div = document.createElement("div");
 							{
 								div.classList.add("inactiveBuyOrderText");
-								div.textContent = "Buy order inactive because you don't have enough balance.";
+								div.textContent = "Buy order inactive: insufficient balance";
 							}
 							buyOrderDiv.appendChild(div);
 						}

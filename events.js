@@ -207,6 +207,7 @@ function receivedEvent(result, isPastEvent)
         invalidateContractCallCache("findHighestBidBuyOrder", new BN(result.returnValues.prime));
 		invalidateContractCallCache("findFreeBuyOrderSlot", new BN(result.returnValues.prime));
 		invalidateContractCallCache("countPrimeBuyOrders", new BN(result.returnValues.prime));
+		invalidateContractCallCache("lengthOfPrimeBuyOrdersArray", new BN(result.returnValues.prime));
 		invalidateContractCallCache("getPrimeBuyOrder", new BN(result.returnValues.prime), new BN(result.returnValues.buyOrdersArrayIndex));
 		invalidateContractCallCache("findBuyOrdersOfUserOnPrime", userAccount, new BN(result.returnValues.prime));
 
@@ -220,14 +221,15 @@ function receivedEvent(result, isPastEvent)
 	}
 	else if (result.event === "BuyOrderDestroyed")
 	{
-        /*console.log("BuyOrderDestroyed event! result:", result);
+        console.log("BuyOrderDestroyed event! result:", result);
         console.log("buyer="+result.returnValues.buyer);
         console.log("prime="+result.returnValues.prime.toString(10));
-        console.log("buyOrdersArrayIndex="+result.returnValues.buyOrdersArrayIndex);*/
+        console.log("buyOrdersArrayIndex="+result.returnValues.buyOrdersArrayIndex);
 
         invalidateContractCallCache("findHighestBidBuyOrder", new BN(result.returnValues.prime));
         invalidateContractCallCache("findFreeBuyOrderSlot", new BN(result.returnValues.prime));
 		invalidateContractCallCache("countPrimeBuyOrders", new BN(result.returnValues.prime));
+		invalidateContractCallCache("lengthOfPrimeBuyOrdersArray", new BN(result.returnValues.prime));
 		invalidateContractCallCache("getPrimeBuyOrder", new BN(result.returnValues.prime), new BN(result.returnValues.buyOrdersArrayIndex));
 		invalidateContractCallCache("findBuyOrdersOfUserOnPrime", userAccount, new BN(result.returnValues.prime));
 		
@@ -347,13 +349,22 @@ function processMissedEvents()
                     return;
                 }
 
-                console.error("Processing "+result.length+" missed events...");
-
-                for (let i=0; i<result.length; i++)
+                if (result.length > 5000)
                 {
-                    receivedEvent(result, true);
+                    console.error("We have missed more than 5000 events! Nuking the entire cache...");
+                    localStorage.clear();
+                    nonPersistingCache = {};
                 }
-
+                else
+                {
+                    console.log("Processing "+result.length+" missed events...");
+                    
+                    for (let i=0; i<result.length; i++)
+                    {
+                        receivedEvent(result, true);
+                    }
+                }
+                
                 updateUI();
                 resolve();
             });

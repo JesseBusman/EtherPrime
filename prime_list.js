@@ -164,7 +164,7 @@ async function updatePrimesList(primesListDiv, circumventRateLimiter=false, forc
 		
 		primes = primes.reverse();
 		
-		primesListDiv.setAttribute("listIsComplete", ((amountAlreadyDisplayed + amount) >= 250) ? "yes" : "no");
+		primesListDiv.setAttribute("listIsComplete", ((amountAlreadyDisplayed + amount) >= 250 || (amountAlreadyDisplayed + amount >= amountOfDefinitePrimesFound)) ? "yes" : "no");
 	}
 	else if (sourceType === "primesOfOwner")
 	{
@@ -264,6 +264,8 @@ async function updatePrimesList(primesListDiv, circumventRateLimiter=false, forc
 		{
 			primesListDiv.innerHTML = "This list is empty :(";
 		}
+		primesListDiv.setAttribute("loading", "no");
+		primesListDiv.setAttribute("listiscomplete", "yes");
 		return;
 	}
 	
@@ -322,6 +324,7 @@ async function updatePrimesList(primesListDiv, circumventRateLimiter=false, forc
 		}
 		else
 		{
+			if (userAccount === undefined || primes[i] === undefined) console.error("wtf userAccount = "+userAccount+" primes[i] = "+primes[i])
 			buyOrdersOfUserOnPrime.push(callContract("findBuyOrdersOfUserOnPrime", userAccount, primes[i]));
 		}
 	}

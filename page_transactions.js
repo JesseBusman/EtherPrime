@@ -16,9 +16,8 @@ function describeFunctionCall(funcName, value, gas, gasPrice, args, isCallToChat
 	else if (value instanceof BN || value.constructor === BN) {}
 	else
 	{
-		console.error("describeFunctionCall received value of unknown type:");
 		console.error(value);
-		return "ERROR";
+		throw "describeFunctionCall received value of unknown type:"+value;
 	}
 	if (typeof gas === "string") gas = new BN(gas);
 	if (typeof gasPrice === "string") gasPrice = new BN(gasPrice);
@@ -68,6 +67,7 @@ function describeFunctionCall(funcName, value, gas, gasPrice, args, isCallToChat
 				return "Try to cancel buy orders on primes: "+uniquePrimes.map(linkPrime).join(", ");
 			}
 		}
+		else if (funcName === "modifyBuyOrder") return "Change buy order on prime "+linkPrime(args[0])+" to "+web3.utils.fromWei(args[2]) + " ETH";
 		else if (funcName === "withdrawEther") return "Withdraw "+web3.utils.fromWei(args[0]) + " ETH";
 		else if (funcName === "sendChatMessage") return "Send a chat message:<br/><i>"+escapeHtml(args[0]) + "</i>";
 		else if (funcName === "setSellPrice") return "Create a sell order of "+web3.utils.fromWei(args[1]) + " ETH for prime "+linkPrime(args[0]);
@@ -124,6 +124,7 @@ function describeEvent(event)
 		else if (event.event === "ProbablePrimeDiscovered") return "Probable prime "+event.returnValues.prime+" claimed";
 		else if (event.event === "UsernameSet") return "Username of address "+linkAddress(event.returnValues.user)+" set to "+escapeHtml(bytes32_to_string(event.returnValues.username));
 		else if (event.event === "BuyOrderCreated") return "Created a buy order of "+web3.utils.fromWei(event.returnValues.bid)+" ETH for prime "+linkPrime(event.returnValues.prime);
+		else if (event.event === "BuyOrderDestroyed") return "Canceled a buy order on prime "+linkPrime(event.returnValues.prime);
 		else if (event.event === "SellPriceSet")
 		{
 			event.returnValues.price = new BN(event.returnValues.price);
@@ -270,9 +271,9 @@ async function updateTransactionsPage_transaction(txhash)
 		}
 	}
 
-	if (txReceipt === null)
+	if (txReceipt === null && txIsConfirmed)
 	{
-		console.error("txReceipt of "+txhash+" is null");
+		console.error("txReceipt of "+txhash+" is null, but the tx is confirmed!");
 	}
 
 	/*if (txReceipt.transactionHash === "0xb8cfb122ebd3e4960c881b198be562ed324b4a07458fce4018d4b8aa1bf8d935")

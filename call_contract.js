@@ -358,6 +358,7 @@ function invalidateContractCallCache(funcName, ...args)
 	if (localStorage.getItem(cacheKey) || nonPersistingCache.hasOwnProperty(cacheKey))
 	{
 		console.log("Cached value of key "+cacheKey+" has been invalidated!");
+
 		localStorage.removeItem(cacheKey);
 		delete nonPersistingCache[cacheKey];
 
@@ -493,7 +494,7 @@ function callContract(funcName)
 			if (err != null)
 			{
 				if (err.toString().includes("User denied transaction")) console.error("User cancelled a call to function "+theFuncName);
-				else console.error("Error in call to "+theFuncName+":", err);
+				else if (theFuncName !== "getPrimeBuyOrder") console.error("Error in call to "+theFuncName+":", err);
 				reject(err);
 				return;
 			}
