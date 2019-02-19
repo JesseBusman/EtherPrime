@@ -11,8 +11,8 @@ const SUBTITLES =
 	"Prime numbers done right: edible and delicious",
 	"Prime numbers done right: secured by proof-of-work",
 
-	"It's like an ICO, except for mathematicians and prime numbers. An IPO of sorts.",
-	"It's like CryptoKitties! Except they're not cute; they're numbers. Grow up.",
+	"It's like an ICO, except for mathematicians and prime numbers.",
+	"Like CryptoKitties! Except they're not cute; they're numbers. Grow up.",
 	"The first decentralized and trustless prime number database!",
 	"Bid on your favourite prime number!",
 	"Adopt a prime number today!",
