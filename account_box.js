@@ -63,7 +63,8 @@ async function updateAccountBoxData()
 	$("accountBox_primeCount").textContent = primeCount.toString(10);
 
 	// If the user's balance is 0, hide the Withdraw button. Otherwise, display it.
-	$("accountBox_withdrawButton").style.display = (new BN(weiBalance)).cmpn(0) === 0 ? "none" : "inline-block";
+	// We should always display it.
+	//$("accountBox_withdrawButton").style.display = (new BN(weiBalance)).cmpn(0) === 0 ? "none" : "inline-block";
 
 	// Display and round the user's ether balance to 8 decimals
 	$("accountBox_etherBalance").textContent = (new BigNumber(web3.utils.fromWei(weiBalance))).toFixed(8) + " ETH";
@@ -153,7 +154,7 @@ async function userAccountChanged()
 				return false;
 			});
 			withdrawButtonA.textContent = "Withdraw";
-			withdrawButtonA.style.display = "none";
+			//withdrawButtonA.style.display = "none";
 		}
 		$("accountBox").appendChild(withdrawButtonA);
 
