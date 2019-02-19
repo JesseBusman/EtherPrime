@@ -75,6 +75,8 @@ body
 
 	border-bottom-left-radius: 10px;
 	border-bottom-right-radius: 10px;
+
+	z-index: 1;
 }
 
 #title
@@ -168,7 +170,9 @@ canvas
 	border: 0;
     background-color: var(--dark-color);
     border-top-left-radius: 8px;
-    border-top-right-radius: 8px;
+	border-top-right-radius: 8px;
+	
+	z-index: 1;
 }
 
 #menuBar > a
@@ -185,6 +189,8 @@ canvas
 	vertical-align: middle;
 	padding: 0px 16px 0px 16px;
 	transition: color 0.3s, background-color 0.5s;
+
+	z-index: 1;
 }
 
 #menuBar > a:hover
@@ -233,6 +239,8 @@ canvas
     display: block;
 	margin-bottom: 50px;
 	left: -10px;
+
+	z-index: 1;
 }
 
 #pageBox > div > h2
@@ -302,3 +310,14 @@ a:not(.nobtn)
 
 
 
+.flyingPrime
+{
+	background: red;
+    background: -webkit-linear-gradient(left, orange , yellow, green, cyan, blue, violet);
+    background: -o-linear-gradient(right, orange, yellow, green, cyan, blue, violet);
+    background: -moz-linear-gradient(right, orange, yellow, green, cyan, blue, violet);
+	background: linear-gradient(to right, orange , yellow, green, cyan, blue, violet);
+	background-clip: text;
+    -webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
