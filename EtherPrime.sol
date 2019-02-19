@@ -138,6 +138,24 @@ interface ERC721 /*is ERC165*/
     function isApprovedForAll(address _owner, address _operator) external view returns (bool);
 }
 
+interface ERC721Enumerable
+{
+    function totalSupply() external view returns (uint256);
+    function tokenOfOwnerByIndex(address _owner, uint256 _index) external view returns (uint256 _tokenId);
+    function tokenByIndex(uint256 _index) external view returns (uint256);
+}
+
+
+/**
+ * @title ERC-721 Non-Fungible Token Standard, optional metadata extension
+ * @dev See https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md
+ */
+interface ERC721Metadata
+{
+    function name() external pure returns (string memory _name);
+    function symbol() external pure returns (string memory _symbol);
+    function tokenURI(uint256 _tokenId) external view returns (string memory _uri);
+}
 
 
 interface ERC721TokenReceiver
@@ -170,8 +188,7 @@ interface ERC223
     
     function transfer(address to, uint value) external returns (bool ok);
     function transfer(address to, uint value, bytes calldata data) external returns (bool ok);
-    //function transfer(address to, uint value, bytes calldata data, string calldata custom_fallback) external returns (bool ok);
-    
+
     event Transfer(address indexed from, address indexed to, uint value, bytes indexed data);
 }
 
@@ -179,68 +196,7 @@ interface ERC223
 
 interface ERC223Receiver
 {
-
-    struct TKN {
-        address sender;
-        uint value;
-        bytes data;
-        bytes4 sig;
-    }
-    
-    
-    function tokenFallback(address _from, uint256 _value, bytes calldata _data) external pure; /* {
-        TKN memory tkn;
-        tkn.sender = _from;
-        tkn.value = _value;
-        tkn.data = _data;
-        uint32 u = uint32(_data[3]) + (uint32(_data[2]) << 8) + (uint32(_data[1]) << 16) + (uint32(_data[0]) << 24);
-        tkn.sig = bytes4(u);
-        
-        /* tkn variable is analogue of msg variable of Ether transaction
-        *  tkn.sender is person who initiated this token transaction   (analogue of msg.sender)
-        *  tkn.value the number of tokens that were sent   (analogue of msg.value)
-        *  tkn.data is data of token transaction   (analogue of msg.data)
-        *  tkn.sig is 4 bytes signature of function
-        *  if data of token transaction is a function execution
-        */
-    //}
-}
-
-
-
-
-// Documentation for ERC777: https://eips.ethereum.org/EIPS/eip-777
-interface ERC777Token
-{
-    function name() external pure returns (string memory);
-    function symbol() external pure returns (string memory);
-    function totalSupply() external view returns (uint256);
-    function balanceOf(address owner) external view returns (uint256);
-    function granularity() external pure returns (uint256);
-
-    function defaultOperators() external view returns (address[] memory);
-    function authorizeOperator(address operator) external;
-    function revokeOperator(address operator) external;
-    function isOperatorFor(address operator, address tokenHolder) external view returns (bool);
-
-    function send(address to, uint256 amount, bytes calldata data) external;
-    function operatorSend(address from, address to, uint256 amount, bytes calldata data, bytes calldata operatorData) external;
-
-    function burn(uint256 amount, bytes calldata data) external;
-    function operatorBurn(address from, uint256 amount, bytes calldata data, bytes calldata operatorData) external;
-
-    event Sent(
-        address indexed operator,
-        address indexed from,
-        address indexed to,
-        uint256 amount,
-        bytes data,
-        bytes operatorData
-    );
-    event Minted(address indexed operator, address indexed to, uint256 amount, bytes data, bytes operatorData);
-    event Burned(address indexed operator, address indexed from, uint256 amount, bytes operatorData);
-    event AuthorizedOperator(address indexed operator, address indexed tokenHolder);
-    event RevokedOperator(address indexed operator, address indexed tokenHolder);
+    function tokenFallback(address _from, uint256 _value, bytes calldata _data) external;
 }
 
 
@@ -273,7 +229,7 @@ interface ERC777TokensSender
 
 
 
-contract EtherPrime is ERC20, ERC721, ERC165, ERC223//, EtherPrimeI //, ERC777Token
+contract EtherPrime is ERC20, ERC721, ERC721Enumerable, ERC721Metadata, ERC165, ERC223
 {
     ////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////
@@ -282,7 +238,7 @@ contract EtherPrime is ERC20, ERC721, ERC165, ERC223//, EtherPrimeI //, ERC777To
     ////////////                                    ////////////
     ////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////
-
+    
     // Array of definite prime numbers
     uint256[] public definitePrimes;
     
@@ -376,6 +332,7 @@ contract EtherPrime is ERC20, ERC721, ERC165, ERC223//, EtherPrimeI //, ERC777To
     
     function _addParticipant(address _newParticipant) private
     {
+        // Add the participant to the list, but only if they are not 0x0 and they are not already in the list.
         if (_newParticipant != address(0x0) && addressToParticipantsArrayIndex[_newParticipant] == 0)
         {
             addressToParticipantsArrayIndex[_newParticipant] = participants.length;
@@ -385,20 +342,17 @@ contract EtherPrime is ERC20, ERC721, ERC165, ERC223//, EtherPrimeI //, ERC777To
     
     ////////////////////////////////////
     //////// Internal functions to change ownership of a prime
-    function _removeFromOwnerPrimes(uint256 _prime) private
+    
+    function _removePrimeFromOwnerPrimesArray(uint256 _prime) private
     {
         bytes32 numberdata = numberToNumberdata[_prime];
         uint256[] storage ownerPrimes = ownerToPrimes[numberdataToOwner(numberdata)];
         uint256 primeIndex = numberdataToOwnerPrimesIndex(numberdata);
         
-        // If the prime we are removing is NOT the last prime, we should move the
-        // last one backwards into the free slot
-        if (primeIndex != ownerPrimes.length-1)
-        {
-            uint256 otherPrimeBeingMoved = ownerPrimes[ownerPrimes.length-1];
-            ownerPrimes[primeIndex] = otherPrimeBeingMoved;
-            _numberdataSetOwnerPrimesIndex(otherPrimeBeingMoved, uint40(primeIndex));
-        }
+        // Move the last one backwards into the freed slot
+        uint256 otherPrimeBeingMoved = ownerPrimes[ownerPrimes.length-1];
+        ownerPrimes[primeIndex] = otherPrimeBeingMoved;
+        _numberdataSetOwnerPrimesIndex(otherPrimeBeingMoved, uint40(primeIndex));
         
         // Refund gas by setting the now unused array slot to 0
         // Advantage: Current transaction gets a gas refund of 15000
@@ -411,20 +365,32 @@ contract EtherPrime is ERC20, ERC721, ERC165, ERC223//, EtherPrimeI //, ERC777To
     
     function _setOwner(uint256 _prime, address _newOwner) private
     {
-        _setOwner(_prime, _newOwner, "");
+        _setOwner(_prime, _newOwner, "", address(0x0), "");
     }
     
-    function _setOwner(uint256 _prime, address _newOwner, bytes memory _data) private
+    function _setOwner(uint256 _prime, address _newOwner, bytes memory _data, address _operator, bytes memory _operatorData) private
     {
+        // getOwner does not throw, so previousOwner can be 0x0
         address previousOwner = getOwner(_prime);
+        
+        if (_operator == address(0x0))
+        {
+            _operator = previousOwner;
+        }
+        
+        // Shortcut in case we don't need to do anything
+        if (previousOwner == _newOwner)
+        {
+            return;
+        }
         
         // Delete _prime from ownerToPrimes[previousOwner]
         if (previousOwner != address(0x0))
         {
-            _removeFromOwnerPrimes(_prime);
+            _removePrimeFromOwnerPrimesArray(_prime);
         }
         
-        // Update the numberdata
+        // Store the new ownerPrimes array index and the new owner in the numberdata
         _numberdataSetOwnerAndOwnerPrimesIndex(_prime, _newOwner, uint40(ownerToPrimes[_newOwner].length));
         
         // Add _prime to ownerToPrimes[_newOwner]
@@ -454,48 +420,40 @@ contract EtherPrime is ERC20, ERC721, ERC165, ERC223//, EtherPrimeI //, ERC777To
             
             // Try to call onERC721Received (as per ERC721)
             
-            (success, returnValue) = tryCall(_newOwner, abi.encodeWithSelector(ERC721TokenReceiver(_newOwner).onERC721Received.selector, address(this), previousOwner, _prime, _data));
+            (success, returnValue) = _tryCall(_newOwner, abi.encodeWithSelector(ERC721TokenReceiver(_newOwner).onERC721Received.selector, _operator, previousOwner, _prime, _data));
             
             if (!success || returnValue != bytes4(keccak256("onERC721Received(address,address,uint256,bytes)")))
             {
-                // If onERC721Received failed, try to call tokenFallback (as per ERC223)
+                // If ERC721::onERC721Received failed, try to call tokenFallback (as per ERC223)
                 
-                (success, returnValue) = tryCall(_newOwner, abi.encodeWithSelector(ERC223Receiver(_newOwner).tokenFallback.selector, previousOwner, _prime, 0x0));
+                (success, returnValue) = _tryCall(_newOwner, abi.encodeWithSelector(ERC223Receiver(_newOwner).tokenFallback.selector, previousOwner, _prime, 0x0));
                 
                 if (!success)
                 {
-                    // If tokenFallback failed, try to call tokensReceived (as per ERC777)
+                    // If ERC223::tokenFallback failed, try to call tokensReceived (as per ERC777)
                     
-                    (success, returnValue) = tryCall(_newOwner, abi.encodeWithSelector(ERC777TokensRecipient(_newOwner).tokensReceived.selector, address(this), previousOwner, _newOwner, _prime, bytes(""), bytes("")));
+                    (success, returnValue) = _tryCall(_newOwner, abi.encodeWithSelector(ERC777TokensRecipient(_newOwner).tokensReceived.selector, _operator, previousOwner, _newOwner, _prime, _data, _operatorData));
                     
                     if (!success)
                     {
+                        // If all token fallback calls failed, give up and just give them their token.
                         return;
                     }
                 }
             }
         }
         
-        // Emit the ERC20 transfer event
         emit Transfer(previousOwner, _newOwner, _prime);
     }
     
     function _createPrime(uint256 _prime, address _owner, bool _isDefinitePrime) private
     {
+        // Create the prime
         _numberdataSetAllPrimesIndexAndNumberType(
             _prime,
             uint48(_isDefinitePrime ? definitePrimes.length : probablePrimes.length),
             _isDefinitePrime ? NumberType.DEFINITE_PRIME : NumberType.PROBABLE_PRIME
         );
-        /*numberToNumberdata[_prime] =
-            ownerPrimesIndex_allPrimesIndex_numberType_owner__toNumberdata
-            (
-                uint40(0),
-                uint48(_isDefinitePrime ? definitePrimes.length : probablePrimes.length),
-                _isDefinitePrime ? NumberType.DEFINITE_PRIME : NumberType.PROBABLE_PRIME,
-                address(0x0)
-            );
-        */
         if (_isDefinitePrime)
         {
             emit DefinitePrimeDiscovered(_prime, msg.sender, definitePrimes.length);
@@ -507,6 +465,7 @@ contract EtherPrime is ERC20, ERC721, ERC165, ERC223//, EtherPrimeI //, ERC777To
             probablePrimes.push(_prime);
         }
         
+        // Give it to its new owner
         _setOwner(_prime, _owner);
     }
     
@@ -666,16 +625,18 @@ contract EtherPrime is ERC20, ERC721, ERC165, ERC223//, EtherPrimeI //, ERC777To
     
     function isValidNFT(uint256 _prime) private view returns (bool)
     {
-        return numberdataToOwner(numberToNumberdata[_prime]) != address(0x0);
+        NumberType numberType = numberdataToNumberType(numberToNumberdata[_prime]);
+        return numberType == NumberType.PROBABLE_PRIME || numberType == NumberType.DEFINITE_PRIME;
     }
     
     function isApprovedFor(address _operator, uint256 _prime) private view returns (bool)
     {
         address owner = getOwner(_prime);
-        if (owner == _operator) return true;
-        if (primeToAllowedAddress[_prime] == _operator) return true;
-        if (ownerToOperators[owner][_operator]) return true;
-        return false;
+        
+        return
+            (owner == _operator) ||
+            (primeToAllowedAddress[_prime] == _operator) ||
+            (ownerToOperators[owner][_operator] == true);
     }
     
     function isContract(address _addr) private view returns (bool)
@@ -685,7 +646,7 @@ contract EtherPrime is ERC20, ERC721, ERC165, ERC223//, EtherPrimeI //, ERC777To
         return addrCodesize != 0;
     }
     
-    function tryCall(address _contract, bytes memory _selectorAndArguments) private returns (bool _success, bytes32 _returnData)
+    function _tryCall(address _contract, bytes memory _selectorAndArguments) private returns (bool _success, bytes32 _returnData)
     {
         bytes32[1] memory returnDataArray;
         uint256 dataLengthBytes = _selectorAndArguments.length;
@@ -716,36 +677,64 @@ contract EtherPrime is ERC20, ERC721, ERC165, ERC223//, EtherPrimeI //, ERC777To
     ////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////
     ////////////                                    ////////////
-    ////////////   ERC20 & ERC721 implementation    ////////////
+    ////////////        Token implementation        ////////////
     ////////////                                    ////////////
     ////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////
     
-    // 
     function name() external pure returns (string memory)
     {
         return "Prime number";
     }
     
-    // 
     function symbol() external pure returns (string memory)
     {
         return "PRIME";
     }
     
-    // 
     function decimals() external pure returns (uint8)
     {
         return 0;
     }
     
-    // 
+    function tokenURI(uint256 _tokenId) external view returns (string memory _uri)
+    {
+        require(isValidNFT(_tokenId));
+        
+        _uri = "https://etherprime.jesbus.com/#search:";
+        
+        uint256 baseURIlen = bytes(_uri).length;
+
+        // Count the amount of digits required to represent the prime number
+        uint256 digits = 0;
+        uint256 _currentNum = _tokenId;
+        while (_currentNum != 0)
+        {
+            _currentNum /= 10;
+            digits++;
+        }
+        
+        uint256 divisor = 10 ** (digits-1);
+        _currentNum = _tokenId;
+        
+        for (uint256 i=0; i<digits; i++)
+        {
+            uint8 digit = 0x30 + uint8(_currentNum / divisor);
+            
+            assembly { mstore8(add(add(_uri, 0x20), add(baseURIlen, i)), digit) }
+            
+            _currentNum %= divisor;
+            divisor /= 10;
+        }
+        
+        assembly { mstore(_uri, add(baseURIlen, digits)) }
+    }
+    
     function totalSupply() external view returns (uint256)
     {
         return definitePrimes.length + probablePrimes.length;
     }
     
-    // 
     function balanceOf(address _owner) external view returns (uint256)
     {
         // According to ERC721 we should throw on queries about the 0x0 address
@@ -754,13 +743,11 @@ contract EtherPrime is ERC20, ERC721, ERC165, ERC223//, EtherPrimeI //, ERC777To
         return ownerToPrimes[_owner].length;
     }
     
-    // !
     function addressPrimeCount(address _owner) external view returns (uint256)
     {
         return ownerToPrimes[_owner].length;
     }
     
-    // 
     function allowance(address _owner, address _spender) external view returns (uint256)
     {
         uint256 total = 0;
@@ -777,7 +764,6 @@ contract EtherPrime is ERC20, ERC721, ERC165, ERC223//, EtherPrimeI //, ERC777To
         return total;
     }
     
-    // 
     // Throws if prime has no owner or does not exist
     function ownerOf(uint256 _prime) external view returns (address)
     {
@@ -786,88 +772,68 @@ contract EtherPrime is ERC20, ERC721, ERC165, ERC223//, EtherPrimeI //, ERC777To
         return owner;
     }
     
-    // 
     function safeTransferFrom(address _from, address _to, uint256 _prime, bytes memory _data) public returns (bool)
     {
         require(getOwner(_prime) == _from, "safeTransferFrom error: from address does not own that prime");
         require(isApprovedFor(msg.sender, _prime), "safeTransferFrom error: you do not have approval from the owner of that prime");
-        _setOwner(_prime, _to, _data);
+        _setOwner(_prime, _to, _data, msg.sender, "");
         return true;
     }
     
-    // 
     function safeTransferFrom(address _from, address _to, uint256 _prime) external returns (bool)
     {
         return safeTransferFrom(_from, _to, _prime, "");
     }
     
-    // 
     function transferFrom(address _from, address _to, uint256 _prime) external returns (bool)
     {
         return safeTransferFrom(_from, _to, _prime, "");
     }
     
-    // 
     function approve(address _to, uint256 _prime) external returns (bool)
     {
-        require(msg.sender == getOwner(_prime), "approve error: you do not own that prime");
+        require(isApprovedFor(msg.sender, _prime), "approve error: you do not have approval from the owner of that prime");
         primeToAllowedAddress[_prime] = _to;
-        
         emit Approval(msg.sender, _to, _prime);
-
         return true;
     }
     
-    // 
     function setApprovalForAll(address _operator, bool _allowed) external returns (bool)
     {
         ownerToOperators[msg.sender][_operator] = _allowed;
-        
         emit ApprovalForAll(msg.sender, _operator, _allowed);
-        
         return true;
     }
     
-    // 
     function getApproved(uint256 _prime) external view returns (address)
     {
         require(isValidNFT(_prime), "getApproved error: prime does not exist");
         return primeToAllowedAddress[_prime];
     }
     
-    // 
     function isApprovedForAll(address _owner, address _operator) external view returns (bool)
     {
         return ownerToOperators[_owner][_operator];
     }
     
-    
-    // 
     function takeOwnership(uint256 _prime) external returns (bool)
     {
-        require(isApprovedFor(msg.sender, _prime), "takeOwnership error: you do not have approval from owner");
-        
+        require(isApprovedFor(msg.sender, _prime), "takeOwnership error: you do not have approval from the owner of that prime");
         _setOwner(_prime, msg.sender);
-        
         return true;
     }
     
-    // 
     function transfer(address _to, uint256 _prime) external returns (bool)
     {
-        require(isApprovedFor(msg.sender, _prime), "transfer error: you do not ownership of or approval for that prime");
-        
+        require(isApprovedFor(msg.sender, _prime), "transfer error: you do not have approval from the owner of that prime");
         _setOwner(_prime, _to);
-        
         return true;
     }
     
     function transfer(address _to, uint _prime, bytes calldata _data) external returns (bool ok)
     {
-        require(isApprovedFor(msg.sender, _prime), "transfer error: you do not ownership of or approval for that prime");
-        
-        _setOwner(_prime, _to, _data);
-        
+        require(isApprovedFor(msg.sender, _prime), "transfer error: you do not have approval from the owner of that prime");
+        _setOwner(_prime, _to, _data, msg.sender, "");
         return true;
     }
     
@@ -890,27 +856,18 @@ contract EtherPrime is ERC20, ERC721, ERC165, ERC223//, EtherPrimeI //, ERC777To
         return ownerToPrimes[_owner];
     }
     
-    // ?
     function implementsERC721() external pure returns (bool)
     {
         return true;
     }
     
-    // ERC165
     function supportsInterface(bytes4 _interfaceID) external pure returns (bool)
     {
-        // ERC165
-        if (_interfaceID == 0x01ffc9a7) return true;
         
-        // ERC721
-        if (_interfaceID == 0x80ac58cd) return true;
-        
-        // ERC721Metadata
-        if (_interfaceID == 0x5b5e139f) return true;
-        
-        // ERC721Enumerable
-        if (_interfaceID == 0x780e9d63) return true;
-        
+        if (_interfaceID == 0x01ffc9a7) return true; // ERC165
+        if (_interfaceID == 0x80ac58cd) return true; // ERC721
+        if (_interfaceID == 0x5b5e139f) return true; // ERC721Metadata
+        if (_interfaceID == 0x780e9d63) return true; // ERC721Enumerable
         return false;
     }
     
@@ -932,10 +889,8 @@ contract EtherPrime is ERC20, ERC721, ERC165, ERC223//, EtherPrimeI //, ERC777To
     function numberToDivisor(uint256 _number) public view returns (uint256)
     {
         if (_number == 0) return 0;
-        if ((_number & 1) == 0) return 2;
-        uint256 nonTwoDivisor = numberToNonTwoDivisor[_number];
-        if (nonTwoDivisor != 0) return nonTwoDivisor;
-        return 0;
+        else if ((_number & 1) == 0) return 2;
+        else return numberToNonTwoDivisor[_number];
     }
     
     function isPrime(uint256 _number) public view returns (Booly)
@@ -1119,17 +1074,17 @@ contract EtherPrime is ERC20, ERC721, ERC165, ERC223//, EtherPrimeI //, ERC777To
     
     function () external
     {
-        computeWithParams(DEFAULT_PRIMES_TO_MEMORIZE, DEFAULT_LOW_LEVEL_GAS, msg.sender);
+        computeWithParams(definitePrimes.length/2, DEFAULT_LOW_LEVEL_GAS, msg.sender);
     }
     
     function compute() external
     {
-        computeWithParams(DEFAULT_PRIMES_TO_MEMORIZE, DEFAULT_LOW_LEVEL_GAS, msg.sender);
+        computeWithParams(definitePrimes.length/2, DEFAULT_LOW_LEVEL_GAS, msg.sender);
     }
     
     function computeAndGiveTo(address _recipient) external
     {
-        computeWithParams(DEFAULT_PRIMES_TO_MEMORIZE, DEFAULT_LOW_LEVEL_GAS, _recipient);
+        computeWithParams(definitePrimes.length/2, DEFAULT_LOW_LEVEL_GAS, _recipient);
     }
     
     function computeWithPrimesToMemorize(uint256 _primesToMemorize) external
@@ -2252,7 +2207,21 @@ contract EtherPrime is ERC20, ERC721, ERC165, ERC223//, EtherPrimeI //, ERC777To
     ////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////
     
-    function countPrimeBuyOrders(uint256 _prime) external view returns (uint256)
+    function countPrimeBuyOrders(uint256 _prime) external view returns (uint256 _amountOfBuyOrders)
+    {
+        _amountOfBuyOrders = 0;
+        
+        BuyOrder[] storage buyOrders = primeToBuyOrders[_prime];
+        for (uint256 i=0; i<buyOrders.length; i++)
+        {
+            if (buyOrders[i].buyer != address(0x0))
+            {
+                _amountOfBuyOrders++;
+            }
+        }
+    }
+    
+    function lengthOfPrimeBuyOrdersArray(uint256 _prime) external view returns (uint256 _lengthOfPrimeBuyOrdersArray)
     {
         return primeToBuyOrders[_prime].length;
     }
