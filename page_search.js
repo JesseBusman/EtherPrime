@@ -241,7 +241,7 @@ async function updateSearchPage()
 							acceptBuyOrderButton.textContent = "Sell now for "+web3.utils.fromWei(bid)+" ETH";
 							acceptBuyOrderButton.onclick = (function(thePrime, theBuyOrderIndex, theAmount){
 								return function(){
-									callContract("setSellPriceAndMatchRange", thePrime, theAmount, theBuyOrderIndex, theBuyOrderIndex);
+									callContract("setSellPrice", thePrime, theAmount, theBuyOrderIndex, theBuyOrderIndex);
 									return false;
 								};
 							})(qInt, i, bid);
