@@ -622,15 +622,15 @@ async function updatePrimesList(primesListDiv, circumventRateLimiter=false, forc
 						return false;
 					}
 
-					callContract("setSellPrice", thePrime, sellPrice, 0, 0);
+					callContract("setSellPrice", thePrime, sellPrice, "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", 0);
 				})();
 				
 				return false;
 			};})(primes[i]);
-
+			
 			cancelSellOrderButton.onclick = (function(thePrime){return function(){
 				(async function(){
-					callContract("setSellPrice", thePrime, 0, 0, 0);
+					callContract("setSellPrice", thePrime, 0, "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", 0);
 				})();
 				
 				return false;
@@ -650,7 +650,7 @@ async function updatePrimesList(primesListDiv, circumventRateLimiter=false, forc
 				sellNowButton.innerHTML = "Sell now for "+fromWei_short(bid);
 				sellNowButton.onclick = (function(thePrime, theBid, theBuyOrderIndex){return function(){
 					(async function(){
-						callContract("setSellPriceAndMatchRange", thePrime, theBid, theBuyOrderIndex, theBuyOrderIndex);
+						callContract("setSellPrice", thePrime, theBid, theBuyOrderIndex, theBuyOrderIndex);
 					})();
 				
 					return false;
