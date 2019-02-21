@@ -21,12 +21,12 @@ const SUBTITLES =
 // Note to self: When changing contract address, remember to whitelist it on infura.
 const ETHER_PRIME_ADDRESS =
 	(window.location.toString().indexOf("etherprimedev") === -1)
-	? "" // Mainnet contract address
+	? "0x979e4a97d610b83348c5af04d836ce8b968bcc68" // Mainnet contract address
 	: "0x4be500ef3d235a5284b8106d6d8173f50f646d49"; // Ropsten testnet contract address
 
 const ETHER_PRIME_CHAT_ADDRESS = 
 	(window.location.toString().indexOf("etherprimedev") === -1)
-	? "" // Mainnet contract address
+	? "0x45a0173238fa60ba547b63f64f1fa9b94be8e5f5" // Mainnet contract address
 	: "0x2f5419ad66e07d099cae7283beb041bdd2a44e92"; // Ropsten testnet contract address
 
 
