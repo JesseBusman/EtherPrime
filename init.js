@@ -78,8 +78,8 @@ async function init()
 
 			$("initLog").innerHTML += "<h3>The browser has not injected web3. Connecting to infura.io ...</h3>";
 
-			if (window.location.toString().indexOf("etherprimedev") === -1) window.web3 = new Web3(new Web3.providers.HttpProvider("http://mainnet.infura.io/v3/00ea02d5eed24f99afd8cefec288999c:8545"));
-			else window.web3 = new Web3(new Web3.providers.HttpProvider("http://ropsten.infura.io/v3/00ea02d5eed24f99afd8cefec288999c:8545"));
+			if (window.location.toString().indexOf("etherprimedev") === -1) window.web3 = new Web3(new Web3.providers.HttpProvider("https://mainnet.infura.io/v3/00ea02d5eed24f99afd8cefec288999c"));
+			else window.web3 = new Web3(new Web3.providers.HttpProvider("https://ropsten.infura.io/v3/00ea02d5eed24f99afd8cefec288999c"));
 		}
 		
 		// Check if we're on the correct Ethereum network
